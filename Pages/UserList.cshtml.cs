@@ -1,30 +1,55 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MySql.Data.MySqlClient;
 using Vocas.ViewModels;
 
 namespace Vocas.Pages
 {
     public class UserListModel : PageModel
     {
+        private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
         public decimal GetKd(decimal kills, decimal deaths)
         {
-            decimal KD = Math.Round((kills / deaths), 1);
+            decimal KD;
+            if(deaths > 0)
+            {
+                KD = Math.Round((kills / deaths), 1);
+            }
+            else
+            {
+                KD = 1;
+            }
             return KD;
         }
         public List<UserViewModel> Users { get; private set; } = [];
-        public void OnGet()
+        public async Task<IActionResult> OnGet()
         {
-            int i = 0;
-            Users.Add(new UserViewModel(i));
-            i++;
-            while (Users[0].FileRow != null)
+            await using var conn = new MySqlConnection(connectionString);
+            await conn.OpenAsync();
+            await using var cmd = new MySqlCommand(
+                @"SELECT * FROM users", conn
+            );
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync()) 
             {
-                Users.Reverse();
-                Users.Add(new UserViewModel(i));
-                i++;
-                Users.Reverse();
+                Users.Add(new UserViewModel(reader.GetInt32(0), false, reader.GetString(1), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), [reader.GetString(7)]));
             }
-            Users.RemoveAt(0);
-            Users.Reverse();
+            conn.Close();
+            return Page();
+            
+
+            //int i = 0;
+            //Users.Add(new UserViewModel(i));
+            //i++;
+            //while (Users[0].UserId != null)
+            //{
+            //    Users.Reverse();
+            //    Users.Add(new UserViewModel(i));
+            //    i++;
+            //    Users.Reverse();
+            //}
+            //Users.RemoveAt(0);
+            //Users.Reverse();
         }
     }
 }

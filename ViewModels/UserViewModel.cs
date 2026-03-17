@@ -1,7 +1,11 @@
-﻿namespace Vocas.ViewModels
+﻿using MySql.Data.MySqlClient;
+using System.Reflection.PortableExecutable;
+
+namespace Vocas.ViewModels
 {
     public class UserViewModel
     {
+        private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
         public string Username { get; set; } = "";
         //private string Password = "";
         public List<AvailabilityViewModel> Available { get; private set; } = new();
@@ -10,36 +14,46 @@
         public int TeamKills { get; set; }
         public TimeSpan Playtime { get; set; }
         public List<string> FavoredFactions { get; private set; } = new();
-        public int? FileRow { get; private set; }
+        public int? UserId { get; private set; }
 
-        public UserViewModel(int userId)
+        public UserViewModel(int userId, bool fetchUser, string? username, int? kills, int? deaths, int? teamkills, string? playtime, List<string>? factions)
         {
-            // an example userLine looks like this: "Harold,monday/18:00/20:00.thursday/13:00/15:00,23,200,4543,13:21:22,bots.squids"
-            string UserLine = "";
-            if(userId < File.ReadLines("users.txt").Count())
+            if (fetchUser)
             {
-                UserLine = File.ReadLines("users.txt").ElementAt(userId);
-
-                Username = UserLine.Split(",")[0];
-                foreach (var dayAvailable in UserLine.Split(",")[1].Split("."))
-                {
-                    DayAvailableChange(dayAvailable.Split("/")[0], TimeOnly.Parse(dayAvailable.Split("/")[1]), TimeOnly.Parse(dayAvailable.Split("/")[2]), true);
-                }
-                Kills = int.Parse(UserLine.Split(",")[2]);
-                Deaths = int.Parse(UserLine.Split(",")[3]);
-                TeamKills = int.Parse(UserLine.Split(",")[4]);
-                Playtime = TimeSpan.Parse(UserLine.Split(",")[5]);
-                foreach (var faction in UserLine.Split(",")[6].Split("."))
-                {
-                    FavoredFactions.Add(faction);
-                }
-
-                FileRow = userId;
+                GetSpecificUser(userId);
             }
             else
             {
-                FileRow = null;
+                UserId = userId;
+                Username = username;
+                Kills = (int)kills;
+                Deaths = (int)deaths;
+                TeamKills = (int)teamkills;
+                Playtime = TimeSpan.Parse(playtime);
+                AddFavoredFaction(factions);
             }
+        }
+
+        public async void GetSpecificUser(int userId)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT * FROM users WHERE id=@id", conn
+            );
+            cmd.Parameters.AddWithValue("@id", userId);
+            await using var reader = await cmd.ExecuteReaderAsync();
+            if (!await reader.ReadAsync())
+            {
+                return;
+            }
+            UserId = reader.GetInt32(0);
+            Username = reader.GetString(1);
+            Kills = reader.GetInt32(3);
+            Deaths = reader.GetInt32(4);
+            TeamKills = reader.GetInt32(5);
+            Playtime = TimeSpan.Parse(reader.GetString(6));
+            return;
         }
 
         public bool AddFavoredFaction(List<string> factionsToAdd)
