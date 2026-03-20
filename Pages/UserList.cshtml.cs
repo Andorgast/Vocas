@@ -32,24 +32,10 @@ namespace Vocas.Pages
             await using var reader = await cmd.ExecuteReaderAsync();
             while (await reader.ReadAsync()) 
             {
-                Users.Add(new UserViewModel(reader.GetInt32(0), false, reader.GetString(1), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), [reader.GetString(7)]));
+                Users.Add(new UserViewModel(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), [reader.GetString(7)]));
             }
             conn.Close();
             return Page();
-            
-
-            //int i = 0;
-            //Users.Add(new UserViewModel(i));
-            //i++;
-            //while (Users[0].UserId != null)
-            //{
-            //    Users.Reverse();
-            //    Users.Add(new UserViewModel(i));
-            //    i++;
-            //    Users.Reverse();
-            //}
-            //Users.RemoveAt(0);
-            //Users.Reverse();
         }
     }
 }

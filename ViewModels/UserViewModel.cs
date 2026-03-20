@@ -1,5 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-using System.Reflection.PortableExecutable;
 
 namespace Vocas.ViewModels
 {
@@ -16,22 +15,20 @@ namespace Vocas.ViewModels
         public List<string> FavoredFactions { get; private set; } = new();
         public int? UserId { get; private set; }
 
-        public UserViewModel(int userId, bool fetchUser, string? username, int? kills, int? deaths, int? teamkills, string? playtime, List<string>? factions)
+        public UserViewModel(int userId)
         {
-            if (fetchUser)
-            {
-                GetSpecificUser(userId);
-            }
-            else
-            {
-                UserId = userId;
-                Username = username;
-                Kills = (int)kills;
-                Deaths = (int)deaths;
-                TeamKills = (int)teamkills;
-                Playtime = TimeSpan.Parse(playtime);
-                AddFavoredFaction(factions);
-            }
+            GetSpecificUser(userId);
+        }
+
+        public UserViewModel(int userId, string username, int kills, int deaths, int teamkills, string playtime, List<string> factions)
+        {
+            UserId = userId;
+            Username = username;
+            Kills = kills;
+            Deaths = deaths;
+            TeamKills = teamkills;
+            Playtime = TimeSpan.Parse(playtime);
+            AddFavoredFaction(factions);
         }
 
         public async void GetSpecificUser(int userId)
