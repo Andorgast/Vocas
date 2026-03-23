@@ -22,20 +22,19 @@ namespace Vocas.Pages
             return KD;
         }
         public List<UserViewModel> Users { get; private set; } = [];
-        public async Task<IActionResult> OnGet()
+        public void OnGet()
         {
-            await using var conn = new MySqlConnection(connectionString);
-            await conn.OpenAsync();
-            await using var cmd = new MySqlCommand(
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
                 @"SELECT * FROM users", conn
             );
-            await using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync()) 
+            var reader = cmd.ExecuteReader();
+            while (reader.Read()) 
             {
                 Users.Add(new UserViewModel(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), [reader.GetString(7)]));
             }
             conn.Close();
-            return Page();
         }
     }
 }

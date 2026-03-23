@@ -12,12 +12,39 @@ namespace Vocas.ViewModels
         public int Deaths { get; set; }
         public int TeamKills { get; set; }
         public TimeSpan Playtime { get; set; }
-        public List<string> FavoredFactions { get; private set; } = new();
+        public string FavoredFactions { get; private set; }
         public int? UserId { get; private set; }
 
         public UserViewModel(int userId)
         {
-            GetSpecificUser(userId);
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT * FROM users WHERE id=@id", conn
+            );
+            cmd.Parameters.AddWithValue("@id", userId);
+            var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return;
+            }
+            UserId = reader.GetInt32(0);
+            Username = reader.GetString(1);
+            Kills = reader.GetInt32(3);
+            Deaths = reader.GetInt32(4);
+            TeamKills = reader.GetInt32(5);
+            Playtime = TimeSpan.Parse(reader.GetString(6));
+            FavoredFactions = reader.GetString(7);
+            cmd = new MySqlCommand(
+                @"SELECT * FROM availibility WHERE user_id=@id", conn    
+            );
+            reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Available.Add(new AvailabilityViewModel(reader.GetString(2), TimeOnly.Parse(reader.GetString(3)), TimeOnly.Parse(reader.GetString(4))));
+            }
+
+            return;
         }
 
         public UserViewModel(int userId, string username, int kills, int deaths, int teamkills, string playtime, List<string> factions)
@@ -31,43 +58,48 @@ namespace Vocas.ViewModels
             AddFavoredFaction(factions);
         }
 
-        public async void GetSpecificUser(int userId)
-        {
-            var conn = new MySqlConnection(connectionString);
-            conn.Open();
-            var cmd = new MySqlCommand(
-                @"SELECT * FROM users WHERE id=@id", conn
-            );
-            cmd.Parameters.AddWithValue("@id", userId);
-            await using var reader = await cmd.ExecuteReaderAsync();
-            if (!await reader.ReadAsync())
-            {
-                return;
-            }
-            UserId = reader.GetInt32(0);
-            Username = reader.GetString(1);
-            Kills = reader.GetInt32(3);
-            Deaths = reader.GetInt32(4);
-            TeamKills = reader.GetInt32(5);
-            Playtime = TimeSpan.Parse(reader.GetString(6));
-            return;
-        }
-
         public bool AddFavoredFaction(List<string> factionsToAdd)
         {
+            bool noDuplicates = true;
+            bool changedFaction = false;
             foreach (string faction in factionsToAdd)
             {
-                foreach (string factionAdded in FavoredFactions)
+                if (FavoredFactions.Contains(faction) || FavoredFactions == "all")
                 {
-                    if (factionAdded == faction)
-                    {
-                        return false;
-                    }
+                    noDuplicates = false;
                 }
-                FavoredFactions.Add(faction);
+                else if (FavoredFactions.Contains("&"))
+                {
+                    FavoredFactions = "all";
+                    changedFaction = true;
+                }
+                else
+                {
+                    //bots are always behind the & sign, squids always in front, bugs adapt based on the other faction
+                    if(FavoredFactions == "bots" || faction == "squids")
+                    {
+                        FavoredFactions = faction + " & " + FavoredFactions;
+                    }
+                    else if (FavoredFactions == "squids" || faction == "bots")
+                    {
+                        FavoredFactions = FavoredFactions + " & " + faction;
+                    }
+                    changedFaction = true;
+                }
             }
-
-            return true;
+            if (changedFaction)
+            {
+                var conn = new MySqlConnection(connectionString);
+                conn.Open();
+                var cmd = new MySqlCommand(
+                    @"UPDATE users WHERE id = @id SET faction = @factions", conn
+                );
+                cmd.Parameters.AddWithValue("@id", UserId);
+                cmd.Parameters.AddWithValue("@factions", FavoredFactions);
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+            return noDuplicates;
         }
 
         public bool DayAvailableChange(string dayToChange, TimeOnly newStartTime, TimeOnly newEndTime, bool newDay)
@@ -88,12 +120,7 @@ namespace Vocas.ViewModels
             if (newDay)
             {
                 Available.Add(
-                    new AvailabilityViewModel
-                    {
-                        Day = dayToChange,
-                        StartTime = newStartTime,
-                        EndTime = newEndTime
-                    }
+                    new AvailabilityViewModel(dayToChange, newStartTime, newEndTime)
                 );
                 return true;
             }
