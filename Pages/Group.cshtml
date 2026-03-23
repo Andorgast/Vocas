@@ -1,0 +1,14 @@
+﻿@page
+@model Vocas.Pages.GroupModel
+@{
+}
+<p>@Model.GroupInfo.User1.Username</p>
+<p>@Model.GroupInfo.User2.Username</p>
+@if(Model.GroupCount >= 3)
+{
+    <p>@Model.GroupInfo.User3.Username</p>
+}
+@if (Model.GroupCount >= 4)
+{
+    <p>@Model.GroupInfo.User4.Username</p>
+}
