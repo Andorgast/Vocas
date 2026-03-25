@@ -84,6 +84,10 @@ namespace Vocas.ViewModels
             }
             int userId = reader.GetInt32(0);
             conn.Close();
+            if(userId == User1.UserId || userId == User2.UserId)
+            {
+                return;
+            }
             conn.Open();
             if (User3 == null)
             {
@@ -94,6 +98,10 @@ namespace Vocas.ViewModels
             }
             else if(User4 == null)
             {
+                if (userId == User3.UserId)
+                {
+                    return;
+                }
                 cmd = new MySqlCommand(
                     @" UPDATE game_groups SET user4_id = @userId WHERE id = @groupId", conn
                 );
