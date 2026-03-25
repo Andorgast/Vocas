@@ -13,7 +13,7 @@ namespace Vocas.ViewModels
         public int TeamKills { get; set; }
         public TimeSpan Playtime { get; set; }
         public string FavoredFactions { get; private set; }
-        public int? UserId { get; private set; }
+        public int UserId { get; private set; }
 
         public UserViewModel(int userId)
         {
@@ -35,9 +35,12 @@ namespace Vocas.ViewModels
             TeamKills = reader.GetInt32(5);
             Playtime = TimeSpan.Parse(reader.GetString(6));
             FavoredFactions = reader.GetString(7);
+            conn.Close();
+            conn.Open();
             cmd = new MySqlCommand(
-                @"SELECT * FROM availibility WHERE user_id=@id", conn    
+                @"SELECT * FROM availability WHERE user_id=@id", conn    
             );
+            cmd.Parameters.AddWithValue("@id", UserId);
             reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -47,7 +50,7 @@ namespace Vocas.ViewModels
             return;
         }
 
-        public UserViewModel(int userId, string username, int kills, int deaths, int teamkills, string playtime, List<string> factions)
+        public UserViewModel(int userId, string username, int kills, int deaths, int teamkills, string playtime, string factions)
         {
             UserId = userId;
             Username = username;
@@ -55,7 +58,7 @@ namespace Vocas.ViewModels
             Deaths = deaths;
             TeamKills = teamkills;
             Playtime = TimeSpan.Parse(playtime);
-            AddFavoredFaction(factions);
+            FavoredFactions = factions;
         }
 
         public bool AddFavoredFaction(List<string> factionsToAdd)

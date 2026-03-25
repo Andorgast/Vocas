@@ -33,18 +33,33 @@ namespace Vocas.ViewModels
             GroupId = groupId;
             User1 = new UserViewModel(reader.GetInt32(1));
             User2 = new UserViewModel(reader.GetInt32(2));
-            if (reader.NextResult())
-            {
-                User3 = new UserViewModel(reader.GetInt32(3));
-            }
-            if (reader.NextResult())
+            try
             {
                 User4 = new UserViewModel(reader.GetInt32(4));
+                User3 = new UserViewModel(reader.GetInt32(3));
+            }
+            catch (SqlNullValueException)
+            {
+                try
+                {
+                    User3 = new UserViewModel(reader.GetInt32(3));
+                }
+                catch (SqlNullValueException)
+                {
+                }
             }
             conn.Close();
         }
 
-        public GroupViewModel(int groupId, UserViewModel user1, UserViewModel user2, UserViewModel user3, UserViewModel user4)
+        public GroupViewModel(UserViewModel user1, UserViewModel user2)
+        {
+            User1 = user1;
+            User2 = user2;
+            AddGroupToDb();
+            return;
+        }
+
+        public GroupViewModel(int groupId, UserViewModel user1, UserViewModel user2, UserViewModel? user3, UserViewModel? user4)
         {
             GroupId = groupId;
             User1 = user1;
@@ -54,11 +69,22 @@ namespace Vocas.ViewModels
             return;
         }
 
-        public void AddUserToGroup(int userId, int groupId)
+        public void AddUserToGroup(string username)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
-            var cmd = new MySqlCommand();
+            var cmd = new MySqlCommand(
+                @"SELECT id FROM users WHERE username = @username", conn
+            );
+            cmd.Parameters.AddWithValue("@username", username);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return;
+            }
+            int userId = reader.GetInt32(0);
+            conn.Close();
+            conn.Open();
             if (User3 == null)
             {
                 cmd = new MySqlCommand(
@@ -78,7 +104,7 @@ namespace Vocas.ViewModels
                 return;
             }
             cmd.Parameters.AddWithValue("@userId", userId);
-            cmd.Parameters.AddWithValue("@groupId", groupId);
+            cmd.Parameters.AddWithValue("@groupId", GroupId);
             cmd.ExecuteNonQuery();
             conn.Close();
         }
@@ -93,8 +119,8 @@ namespace Vocas.ViewModels
                 cmd = new MySqlCommand(
                     @"INSERT INTO game_groups (user1_id, user2_id, user3_id, user4_id) VALUE (@user1Id, @user2Id, @user3Id, @user4Id) ", conn
                 );
-                cmd.Parameters.AddWithValue("@user3Id", User3);
-                cmd.Parameters.AddWithValue("@user4Id", User4);
+                cmd.Parameters.AddWithValue("@user3Id", User3.UserId);
+                cmd.Parameters.AddWithValue("@user4Id", User4.UserId);
 
             }
             else if (User3 != null)
@@ -102,17 +128,28 @@ namespace Vocas.ViewModels
                 cmd = new MySqlCommand(
                     @"INSERT INTO game_groups (user1_id, user2_id, user3_id) VALUE (@user1Id, @user2Id, @user3Id) ", conn
                 );
-                cmd.Parameters.AddWithValue("@user3_id", User3);
+                cmd.Parameters.AddWithValue("@user3_id", User3.UserId);
             }
             else
             {
                 cmd = new MySqlCommand(
-                    @"INSERT INTO game_groups (user1Id, user2Id) VALUE (@user1Id, @user2Id) ", conn
+                    @"INSERT INTO game_groups (user1_id, user2_id) VALUE (@user1Id, @user2Id) ", conn
                 );
             }
-            cmd.Parameters.AddWithValue("@user1Id", User1);
-            cmd.Parameters.AddWithValue("@user2Id", User2);
+            cmd.Parameters.AddWithValue("@user1Id", User1.UserId);
+            cmd.Parameters.AddWithValue("@user2Id", User2.UserId);
             cmd.ExecuteNonQuery();
+            conn.Close();
+            conn.Open();
+            cmd = new MySqlCommand(
+                @"SELECT LAST_INSERT_ID();", conn
+            );
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return;
+            }
+            GroupId = reader.GetInt32(0);
             conn.Close();
         }
     }
