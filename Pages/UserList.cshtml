@@ -11,10 +11,7 @@
                 <p class="flex-none"><span class="font-bold">K/D: </span>@Model.GetKd(user.Kills, user.Deaths)</p>
                 <p class="flex-none"><span class="font-bold">Teamkills: </span>@user.TeamKills</p>
                 <p class="flex-none font-bold">Favored factions:</p>
-                @foreach (var faction in user.FavoredFactions)
-                {
-                    <p class="ml-[5px] flex-none">@faction</p>
-                }
+                <p class="ml-[5px] flex-none">@user.FavoredFactions</p>
                 <p class="flex-none font-bold">Availability:</p>
                 @foreach (var availableRange in user.Available)
                 {
@@ -22,8 +19,8 @@
                 }
             </div>
             <div class="ml-[5px] flex-none">
-                <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-page="" asp-route-id="@user.UserId">user info</a></p>
-                <p class="flex-none align-middle m-[5px] p-[5px] rounded-lg bg-slate-100"><a asp-page="" asp-route-id="@user.UserId">create group with user</a></p>
+                <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-page="" asp-route-id="@user.UserId">user info</a></p> 
+                <p class="flex-none align-middle m-[5px] p-[5px] rounded-lg bg-slate-100"><a asp-page="" asp-route-groupCreate="@user.UserId">create group with user</a></p>
                 <p class="flex-none align-middle m-[5px] mb-[0px] p-[5px] rounded-lg bg-slate-100"><a asp-page="" asp-route-id="@user.UserId">add user to group</a></p>
             </div>
         </div>

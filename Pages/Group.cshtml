@@ -2,13 +2,80 @@
 @model Vocas.Pages.GroupModel
 @{
 }
-<p>@Model.GroupInfo.User1.Username</p>
-<p>@Model.GroupInfo.User2.Username</p>
-@if(Model.GroupCount >= 3)
+@if(Model.GroupCount == 0)
 {
-    <p>@Model.GroupInfo.User3.Username</p>
+    <div class="flex justify-between flex-wrap">
+        @foreach(var group in Model.UserGroups)
+        {
+            <div class="flex">
+                <div class="m-[5px]">
+                    @if(group.User1.UserId != Model.currentUserId)
+                    {
+                        <p>@group.User1.Username</p>
+                    }
+                    else
+                    {
+                        <p>@group.User1.Username [you]</p>
+                    }
+                    @if (group.User3 != null)
+                    {
+                        @if (group.User3.UserId != Model.currentUserId)
+                        {
+                            <p>@group.User3.Username</p>
+                        }
+                        else
+                        {
+                            <p>@group.User3.Username [you]</p>
+                        }
+                    }
+                </div>
+                <div class="m-[5px]">
+                    @if (group.User2.UserId != Model.currentUserId)
+                    {
+                        <p>@group.User2.Username</p>
+                    }
+                    else
+                    {
+                        <p>@group.User2.Username [you]</p>
+                    }
+                    @if (group.User4 != null)
+                    {
+                        @if (group.User4.UserId != Model.currentUserId)
+                        {
+                            <p>@group.User4.Username</p>
+                        }
+                        else
+                        {
+                            <p>@group.User4.Username [you]</p>
+                        }
+                    }
+                </div>
+                <div class="m-[5px]">
+                    <p><a asp-page="" asp-route-id="@group.GroupId"> Go to group page</a></p>
+                </div>
+            </div>
+        }
+    </div>
 }
-@if (Model.GroupCount >= 4)
+else
 {
-    <p>@Model.GroupInfo.User4.Username</p>
+    <p>@Model.GroupInfo.User1.Username</p>
+    <p>@Model.GroupInfo.User2.Username</p>
+    @if (Model.GroupCount >= 3)
+    {
+        <p>@Model.GroupInfo.User3.Username</p>
+    }
+    @if (Model.GroupCount >= 4)
+    {
+        <p>@Model.GroupInfo.User4.Username</p>
+    }
+    else
+    {
+        <form>
+            <label for="newUser">Enter the username of the user you want to add</label>
+            <input type="text" name="newUser" />
+            <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
+            <button>add user</button>
+        </form>
+    }
 }
