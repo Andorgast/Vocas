@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Reflection.PortableExecutable;
 
 namespace Vocas.ViewModels
 {
@@ -44,9 +45,9 @@ namespace Vocas.ViewModels
             reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                Available.Add(new AvailabilityViewModel(reader.GetString(2), TimeOnly.Parse(reader.GetString(3)), TimeOnly.Parse(reader.GetString(4))));
+                Available.Add(new AvailabilityViewModel(reader.GetString(2), reader.GetTimeSpan(3), reader.GetTimeSpan(4)));
             }
-
+            conn.Close();
             return;
         }
 
@@ -59,6 +60,18 @@ namespace Vocas.ViewModels
             TeamKills = teamkills;
             Playtime = TimeSpan.Parse(playtime);
             FavoredFactions = factions;
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT * FROM availability WHERE user_id=@id", conn
+            );
+            cmd.Parameters.AddWithValue("@id", UserId);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Available.Add(new AvailabilityViewModel(reader.GetString(2), reader.GetTimeSpan(3), reader.GetTimeSpan(4)));
+            }
+            conn.Close();
         }
 
         public bool AddFavoredFaction(List<string> factionsToAdd)
@@ -105,7 +118,7 @@ namespace Vocas.ViewModels
             return noDuplicates;
         }
 
-        public bool DayAvailableChange(string dayToChange, TimeOnly newStartTime, TimeOnly newEndTime, bool newDay)
+        public bool DayAvailableChange(string dayToChange, TimeSpan newStartTime, TimeSpan newEndTime, bool newDay)
         {
             foreach (var dayAvailable in Available)
             {
