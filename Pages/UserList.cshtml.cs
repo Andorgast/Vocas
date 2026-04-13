@@ -23,7 +23,7 @@ namespace Vocas.Pages
         }
         public void createGroup(int UserToAdd)
         {
-            var CreatedGroup = new GroupViewModel(new UserViewModel(UserToAdd), new UserViewModel(currentUserId));
+            var CreatedGroup = new GroupViewModel([new UserViewModel(UserToAdd), new UserViewModel(currentUserId)]);
             RedirectToPage("/group", new { id = CreatedGroup.GroupId});
         }
         public int currentUserId { get; private set; } = 7;
