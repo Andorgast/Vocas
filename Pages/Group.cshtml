@@ -8,70 +8,55 @@
         <div class="flex justify-between flex-wrap">
             @foreach (var group in Model.UserGroups)
             {
-                <div class="flex m-[10px] p-[20px] rounded-lg bg-slate-300 h-min">
-                    <table>
+                <div class="m-[10px] p-[20px] rounded-lg bg-slate-300 h-min">
+                    <div class="flex justify-between">
                         @{
                             bool even = false;
                         }
                         @foreach (var user in group.Users)
                         {
-                            @if (user.UserId == Model.currentUserId)
+                            @if (even)
                             {
-                                <tc>@user.Username [you]</tc>
+                                @if (user.UserId == Model.currentUserId)
+                                {
+                                    <p>@user.Username [you]</p>
+                                }
+                                else
+                                {
+                                    <p>@user.Username</p>
+                                }
+                                even = false;
                             }
                             else
                             {
-                                <tc>@user.Username</tc>
-                            }
-                            if (even)
-                            {
-                                <tr></tr>
-                            }
-                            even = !even;
-                        }
-                    </table>
-                    @* <div class="m-[5px]">
-                        @if (group.Users[1].UserId != Model.currentUserId)
-                        {
-                            <p class="flex-none">@group.Users[1].Username</p>
-                        }
-                        else
-                        {
-                            <p class="flex-none">@group.Users[1].Username [you]</p>
-                        }
-                        @if (group.Users[3] != null)
-                        {
-                            @if (group.Users[3].UserId != Model.currentUserId)
-                            {
-                                <p class="flex-none">@group.User3.Username</p>
-                            }
-                            else
-                            {
-                                <p class="flex-none">@group.User3.Username [you]</p>
+                                even = true;
                             }
                         }
                     </div>
-                    <div class="m-[5px]">
-                        @if (group.User2.UserId != Model.currentUserId)
-                        {
-                            <p class="flex-none">@group.User2.Username</p>
+                    <div class="flex justify-between">
+                        @{
+                            even = false;
                         }
-                        else
+                        @foreach (var user in group.Users)
                         {
-                            <p class="flex-none">@group.User2.Username [you]</p>
-                        }
-                        @if (group.User4 != null)
-                        {
-                            @if (group.User4.UserId != Model.currentUserId)
+                            @if (!even)
                             {
-                                <p class="flex-none">@group.User4.Username</p>
+                                @if (user.UserId == Model.currentUserId)
+                                {
+                                    <p>@user.Username [you]</p>
+                                }
+                                else
+                                {
+                                    <p>@user.Username</p>
+                                }
+                                even = true;
                             }
                             else
                             {
-                                <p class="flex-none">@group.User4.Username [you]</p>
+                                even = false;
                             }
                         }
-                    </div> *@
+                    </div>
                     <div class="m-[5px]">
                         <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-page="" asp-route-id="@group.GroupId"> Go to group page</a></p>
                     </div>
@@ -89,7 +74,7 @@
                     <p>@user.Username</p>
                 }
             </div>
-            @if(Model.GroupCount < 4)
+            @if(Model.GroupCount < Model.GroupInfo.MaxGroupSize)
             {
                 <form class="mt-[10px] p-[20px] rounded-lg bg-slate-300 h-min w-min">
                     <p>Enter the username of the user you want to add</p>

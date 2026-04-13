@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MySql.Data.MySqlClient;
 using System.Data.SqlTypes;
 using Vocas.ViewModels;
+using static Vocas.ViewModels.GroupViewModel;
 
 namespace Vocas.Pages
 {
@@ -13,14 +14,17 @@ namespace Vocas.Pages
         public GroupViewModel? GroupInfo { get; private set; }
         public int GroupCount { get; private set; }
         public List<GroupViewModel> UserGroups = new();
-        public void OnGet(int? id, string? newUser)
+        public IActionResult OnGet(int? id, string? newUser)
         {
             if(id != null)
             {
                 GroupInfo = new GroupViewModel((int)id);
                 if(newUser != null)
                 {
-                    GroupInfo.AddUserToGroup(newUser);
+                    if (GroupInfo.AddUserToGroup(newUser) == UserAdding.success)
+                    {
+
+                    }
                 }
                 GroupCount = GroupInfo.Users.Count();
             }
@@ -40,6 +44,7 @@ namespace Vocas.Pages
                 }
                 conn.Close();
             }
+            return Page();
         }
     }
 }

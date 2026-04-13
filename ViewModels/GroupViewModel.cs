@@ -13,7 +13,8 @@ namespace Vocas.ViewModels
         private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
         public enum UserAdding
         {
-            user_not_found, 
+            user_not_found,
+            user_already_in_group,
             group_is_full, 
             success
         }
@@ -74,6 +75,13 @@ namespace Vocas.ViewModels
             {
                 return UserAdding.group_is_full;
             }
+            foreach(var user in Users)
+            {
+                if (user.UserId == userId)
+                {
+                    return UserAdding.user_already_in_group;
+                }
+            }
             conn.Open();
             cmd = new MySqlCommand(
                 @"INSERT INTO user_to_group (user_id, group_id) VALUE (@userId, @groupId)", conn
@@ -82,6 +90,7 @@ namespace Vocas.ViewModels
             cmd.Parameters.AddWithValue("@groupId", GroupId);
             cmd.ExecuteNonQuery();
             conn.Close();
+            Users.Add(new UserViewModel(userId));
             return UserAdding.success;
         }
 
@@ -90,25 +99,12 @@ namespace Vocas.ViewModels
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
-                @"INSERT INTO game_groups (name) VALUE (@name)", conn    
+                @"INSERT INTO game_groups (name) VALUE (@name); SELECT LAST_INSERT_ID();", conn    
             );
             cmd.Parameters.AddWithValue("@name", "name of the group");
-            cmd.ExecuteNonQuery();
-            conn.Close();
-            conn.Open();
-            cmd = new MySqlCommand(
-                @"SELECT LAST_INSERT_ID();", conn
-            );
             using var reader = cmd.ExecuteReader();
             if (!reader.Read())
             {
-                Console.WriteLine("-------------------------------------------------------------------");
-                Console.WriteLine("-------------------------------------------------------------------");
-                Console.WriteLine("-------------------------------------------------------------------");
-                Console.WriteLine("FAILED TO GET LAST ID");
-                Console.WriteLine("-------------------------------------------------------------------");
-                Console.WriteLine("-------------------------------------------------------------------");
-                Console.WriteLine("-------------------------------------------------------------------");
                 return GroupAdding.failed_get_groupid;
             }
             GroupId = reader.GetInt32(0);
