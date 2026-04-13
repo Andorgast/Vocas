@@ -21,20 +21,20 @@ namespace Vocas.Pages
             }
             return KD;
         }
-        public void createGroup(int UserToAdd)
+        public IActionResult createGroup(int UserToAdd)
         {
-            var CreatedGroup = new GroupViewModel(new UserViewModel(UserToAdd), new UserViewModel(currentUserId));
-            RedirectToPage("/group", new { id = CreatedGroup.GroupId});
+            var CreatedGroup = new GroupViewModel([new UserViewModel(UserToAdd), new UserViewModel(currentUserId)]);
+            return RedirectToPage("/Group", new { id = CreatedGroup.GroupId});
         }
         public int currentUserId { get; private set; } = 7;
         public List<UserViewModel> Users { get; private set; } = [];
-        public PageResult OnGet(int? groupCreate)
+        public IActionResult OnGet(int? groupCreate)
         {
             if (groupCreate != null)
             {
                 if ((int)groupCreate != currentUserId)
                 {
-                    createGroup((int)groupCreate);
+                    return createGroup((int)groupCreate);
                 }    
             }
             var conn = new MySqlConnection(connectionString);
