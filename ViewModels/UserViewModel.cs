@@ -27,6 +27,7 @@ namespace Vocas.ViewModels
             var reader = cmd.ExecuteReader();
             if (!reader.Read())
             {
+                conn.Close();
                 return;
             }
             UserId = reader.GetInt32(0);

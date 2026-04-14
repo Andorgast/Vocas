@@ -25,11 +25,6 @@ namespace Vocas.ViewModels
             voted_succes,
             deleted_succes
         }
-        public enum GroupAdding
-        {
-            failed_get_groupid,
-            success
-        }
         public int GroupId { get; private set; }
         public int MaxGroupSize { get; private set; } = 4;
         public List<UserViewModel> Users { get; private set; } = [];
@@ -182,7 +177,7 @@ namespace Vocas.ViewModels
             return UserRemoving.voted_succes;
         }
 
-        public GroupAdding AddGroupToDb()
+        public bool AddGroupToDb()
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -193,7 +188,7 @@ namespace Vocas.ViewModels
             using var reader = cmd.ExecuteReader();
             if (!reader.Read())
             {
-                return GroupAdding.failed_get_groupid;
+                return false;
             }
             GroupId = reader.GetInt32(0);
             conn.Close();
@@ -208,7 +203,7 @@ namespace Vocas.ViewModels
                 cmd.ExecuteNonQuery();
                 conn.Close();
             }
-            return GroupAdding.success;
+            return true;
         }
     }
 }
