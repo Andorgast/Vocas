@@ -18,6 +18,13 @@ namespace Vocas.ViewModels
             group_is_full, 
             success
         }
+        public enum UserRemoving
+        {
+            user_not_in_group,
+            already_voted,
+            voted_succes,
+            deleted_succes
+        }
         public enum GroupAdding
         {
             failed_get_groupid,
@@ -92,6 +99,87 @@ namespace Vocas.ViewModels
             conn.Close();
             Users.Add(new UserViewModel(userId));
             return UserAdding.success;
+        }
+
+        public UserRemoving VoteForRemoval(int votingUser, int votedUser)
+        {
+            bool votedIsInGroup = false;
+            bool votingIsInGroup = false;
+            List<int> votingUsers = [];
+            foreach (var user in Users)
+            {
+                if (user.UserId == votedUser)
+                {
+                    votedIsInGroup = true;
+                }
+                if (user.UserId == votingUser)
+                {
+                    votingIsInGroup = true;
+                }
+            }
+            if (!votedIsInGroup || !votingIsInGroup)
+            {
+                return UserRemoving.user_not_in_group;
+            }
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT voting_user FROM removal_vote WHERE voted_user = @votedUser AND group_id = @groupId", conn
+            );
+            cmd.Parameters.AddWithValue("@votedUser", votedUser);
+            cmd.Parameters.AddWithValue("@groupId", GroupId);
+            var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                votingUsers.Add(reader.GetInt32(0));
+            }
+            conn.Close();
+            foreach(int userId in votingUsers)
+            {
+                if(userId == votingUser)
+                {
+                    return UserRemoving.already_voted;
+                }
+            }
+            votingUsers.Add(votingUser);
+            if ((float)votingUsers.Count() > ((float)Users.Count()/2))
+            {
+                conn.Open();
+                cmd = new MySqlCommand(
+                    @"DELETE FROM user_to_group WHERE user_id = @votedUser AND group_id = @groupId; DELETE FROM removal_vote WHERE voting_user = @votedUser OR (voted_user = @votedUser AND group_id = @groupId)", conn
+                );
+                cmd.Parameters.AddWithValue("@votedUser", votedUser);
+                cmd.Parameters.AddWithValue("@groupId", GroupId);
+                cmd.ExecuteNonQuery();
+                UserViewModel? tempUserContainer = null;
+                foreach(var user in Users)
+                {
+                    if (user.UserId == votedUser) 
+                    {
+                        tempUserContainer = user;
+                    }
+                }
+                conn.Close();
+                if (tempUserContainer != null)
+                {
+                    Users.Remove(tempUserContainer);
+                }
+                else
+                {
+                    return UserRemoving.user_not_in_group;
+                }
+                return UserRemoving.deleted_succes;
+            }
+            conn.Open();
+            cmd = new MySqlCommand(
+                @"INSERT INTO removal_vote (voting_user, voted_user, group_id) VALUE (@votingUser, @votedUser, @groupId)", conn
+            );
+            cmd.Parameters.AddWithValue("@votingUser", votingUser);
+            cmd.Parameters.AddWithValue("@votedUser", votedUser);
+            cmd.Parameters.AddWithValue("@groupId", GroupId);
+            cmd.ExecuteNonQuery();
+            conn.Close();
+            return UserRemoving.voted_succes;
         }
 
         public GroupAdding AddGroupToDb()

@@ -14,17 +14,32 @@ namespace Vocas.Pages
         public GroupViewModel? GroupInfo { get; private set; }
         public int GroupCount { get; private set; }
         public List<GroupViewModel> UserGroups = new();
-        public IActionResult OnGet(int? id, string? newUser)
+        public IActionResult OnGet(int? id, string? newUser, int? votedUser, int? votingUser)
         {
             if(id != null)
             {
                 GroupInfo = new GroupViewModel((int)id);
+                bool isInGroup = false;
+                foreach(var user in GroupInfo.Users)
+                {
+                    if (!isInGroup && user.UserId == currentUserId)
+                    {
+                        isInGroup = true;
+                    }
+                }
+                if (!isInGroup)
+                {
+                    return RedirectToPage("/Group");
+                }
                 if(newUser != null)
                 {
-                    if (GroupInfo.AddUserToGroup(newUser) == UserAdding.success)
-                    {
-
-                    }
+                    GroupInfo.AddUserToGroup(newUser);
+                    return RedirectToPage("/Group", new { id = GroupInfo.GroupId });
+                }
+                else if (votedUser != null && votingUser != null)
+                {
+                    GroupInfo.VoteForRemoval((int)votingUser, (int)votedUser);
+                    return RedirectToPage("/Group", new { id = GroupInfo.GroupId });
                 }
                 GroupCount = GroupInfo.Users.Count();
             }
