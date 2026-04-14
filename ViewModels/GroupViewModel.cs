@@ -144,10 +144,12 @@ namespace Vocas.ViewModels
             votingUsers.Add(votingUser);
             if ((float)votingUsers.Count() > ((float)Users.Count()/2))
             {
+                conn.Open();
                 cmd = new MySqlCommand(
-                    @"DELETE FROM user_to_group WHERE user_id = @votedUser; DELETE FROM removal_vote WHERE voting_user = @votedUser;"
+                    @"DELETE FROM user_to_group WHERE user_id = @votedUser AND group_id = @groupId; DELETE FROM removal_vote WHERE voting_user = @votedUser OR (voted_user = @votedUser AND group_id = @groupId)", conn
                 );
                 cmd.Parameters.AddWithValue("@votedUser", votedUser);
+                cmd.Parameters.AddWithValue("@groupId", GroupId);
                 cmd.ExecuteNonQuery();
                 UserViewModel? tempUserContainer = null;
                 foreach(var user in Users)
@@ -157,6 +159,7 @@ namespace Vocas.ViewModels
                         tempUserContainer = user;
                     }
                 }
+                conn.Close();
                 if (tempUserContainer != null)
                 {
                     Users.Remove(tempUserContainer);
@@ -167,6 +170,15 @@ namespace Vocas.ViewModels
                 }
                 return UserRemoving.deleted_succes;
             }
+            conn.Open();
+            cmd = new MySqlCommand(
+                @"INSERT INTO removal_vote (voting_user, voted_user, group_id) VALUE (@votingUser, @votedUser, @groupId)", conn
+            );
+            cmd.Parameters.AddWithValue("@votingUser", votingUser);
+            cmd.Parameters.AddWithValue("@votedUser", votedUser);
+            cmd.Parameters.AddWithValue("@groupId", GroupId);
+            cmd.ExecuteNonQuery();
+            conn.Close();
             return UserRemoving.voted_succes;
         }
 
