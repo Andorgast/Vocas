@@ -66,32 +66,77 @@
     }
     else
     {
-        <div class="m-[10px] p-[20px]">
-            <div class="p-[20px] rounded-lg bg-slate-300 h-min w-min">
-                <p class="font-bold">Users:</p>
-                <form>
-                @foreach (var user in Model.GroupInfo.Users)
+        <div class="flex">
+            <div class="m-[10px] p-[20px]">
+                <div class="p-[20px] rounded-lg bg-slate-300 h-min w-min">
+                    <p class="font-bold">Users:</p>
+                    <form>
+                        @foreach (var user in Model.GroupInfo.Users)
+                        {
+                            @if (user.UserId != Model.currentUserId)
+                            {
+                                <label for="@user.UserId">@user.Username</label>
+                                <button id="@user.UserId" name="votedUser" value="@user.UserId" class="flex-none align-middle p-[5px] m-[5px] rounded-lg bg-slate-100">remove user</button>
+                                <p></p>
+                            }
+                        }
+                        <input type="hidden" name="votingUser" value="@Model.currentUserId" />
+                        <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
+                    </form>
+                </div>
+                @if (Model.GroupCount < Model.GroupInfo.MaxGroupSize)
                 {
-                    @if(user.UserId != Model.currentUserId)
+                    <form class="mt-[10px] p-[20px] rounded-lg bg-slate-300 h-min w-min">
+                        <p>Enter the username of the user you want to add</p>
+                        <input class="rounded-lg" type="text" name="newUser" /><p></p>
+                        <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
+                        <button class="flex-none align-middle p-[5px] m-[5px] ml-[0px] rounded-lg bg-slate-100">add user</button>
+                    </form>
+                }
+            </div>
+            <div flex-col justify-between>
+                @foreach (var message in Model.Messages)
+                {
+                    @if (message.Id == Model.Editing && message.User.UserId == Model.currentUserId)
                     {
-                        <label for="@user.UserId">@user.Username</label>
-                        <button id="@user.UserId" name="votedUser" value="@user.UserId" class="flex-none align-middle p-[5px] m-[5px] rounded-lg bg-slate-100">remove user</button>
-                        <p></p>
+                        <div class="bg-sky-300 m-[20px] p-[10px] rounded-lg ml-[400px]">
+                            <p>[you]</p>
+                            <form>
+                                <input type="text" autofocus name="editedMessage" value="@message.BodyText" />
+                                <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
+                                <input type="hidden" name="editing" value="@Model.Editing" />
+                                <p></p>
+                                <button>confirm changes</button>
+                            </form>
+                        </div>
+                    }
+                    else if (message.User.UserId == Model.currentUserId)
+                    {
+                        <div class="bg-sky-300 m-[20px] p-[10px] rounded-lg ml-[1000px]">
+                            <p>[you]</p>
+                            <p>@message.BodyText</p>
+                            <form>
+                                <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
+                                <button name="editing" value="@message.Id">edit message</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="bg-emerald-300 m-[20px] p-[10px] rounded-lg mr-[1000px]">
+                            <p>@message.User.Username</p>
+                            <p>@message.BodyText</p>
+                        </div>
                     }
                 }
-                <input type="hidden" name="votingUser" value="@Model.currentUserId"/>
-                <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
-                </form>
+                <div class="p-[20px] rounded-lg bg-slate-300 h-min w-full">
+                    <form>
+                        <input name="newMessage" type="text" />
+                        <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
+                        <button>send message</button>
+                    </form>
+                </div>
             </div>
-            @if(Model.GroupCount < Model.GroupInfo.MaxGroupSize)
-            {
-                <form class="mt-[10px] p-[20px] rounded-lg bg-slate-300 h-min w-min">
-                    <p>Enter the username of the user you want to add</p>
-                    <input class="rounded-lg" type="text" name="newUser" /><p></p>
-                    <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
-                    <button class="flex-none align-middle p-[5px] m-[5px] ml-[0px] rounded-lg bg-slate-100">add user</button>
-                </form>
-            }
         </div>
     }
 </div>
