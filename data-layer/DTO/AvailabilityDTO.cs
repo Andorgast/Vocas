@@ -1,5 +1,4 @@
-﻿using data_layer;
-namespace data_layer
+﻿namespace data_layer
 {
     public class AvailabilityDTO
     {

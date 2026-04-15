@@ -1,36 +1,8 @@
-﻿using logic_layer;
+﻿using data_layer;
 namespace logic_layer
 {
-    public class User
+    public class UserService
     {
-        private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
-        public string Username { get; set; } = "";
-        //private string Password = "";
-        public List<Availability> Available { get; private set; } = new();
-        public int Kills { get; set; }
-        public int Deaths { get; set; }
-        public int TeamKills { get; set; }
-        public TimeSpan Playtime { get; set; }
-        public string FavoredFactions { get; private set; }
-        public int UserId { get; private set; }
-
-        public User(int userId)
-        {
-            //get user and availability from db based on user id
-        }
-
-        public User(int userId, string username, int kills, int deaths, int teamkills, string playtime, string factions)
-        {
-            UserId = userId;
-            Username = username;
-            Kills = kills;
-            Deaths = deaths;
-            TeamKills = teamkills;
-            Playtime = TimeSpan.Parse(playtime);
-            FavoredFactions = factions;
-            //get availability from db
-        }
-
         public bool AddFavoredFaction(List<string> factionsToAdd)
         {
             bool noDuplicates = true;
@@ -94,7 +66,7 @@ namespace logic_layer
 
         public bool RemoveDayAvailable(string dayToChange)
         {
-            Availability? dayUpdater = null;
+            AvailabilityService? dayUpdater = null;
             foreach (var dayAvailable in Available)
             {
                 if (dayAvailable.Day == dayToChange)

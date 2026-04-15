@@ -1,43 +1,7 @@
-﻿using logic_layer;
-namespace logic_layer
+﻿namespace logic_layer
 {
-    public class Group
+    public class GroupService
     {
-        public enum UserAdding
-        {
-            user_not_found,
-            user_already_in_group,
-            group_is_full, 
-            success
-        }
-        public enum UserRemoving
-        {
-            user_not_in_group,
-            already_voted,
-            voted_succes,
-            deleted_succes
-        }
-        public int GroupId { get; private set; }
-        public int MaxGroupSize { get; private set; } = 4;
-        public List<User> Users { get; private set; } = [];
-
-        public Group(int groupId)
-        {
-            //get group from db
-        }
-
-        public Group(User[] users)
-        {
-            if((users.Length + Users.Count()) < MaxGroupSize)
-            {
-                foreach (var user in users)
-                {
-                    Users.Add(user);
-                }
-                AddGroupToDb();
-            }
-        }
-
         public UserAdding AddUserToGroup(string username)
         {
             if (Users.Count() > (MaxGroupSize - 1))
@@ -97,7 +61,7 @@ namespace logic_layer
             {
                 //delete user from group, remove their votes in the group and remove the votes for them in the group
 
-                User? tempUserContainer = null;
+                UserService? tempUserContainer = null;
                 foreach(var user in Users)
                 {
                     if (user.UserId == votedUser) 

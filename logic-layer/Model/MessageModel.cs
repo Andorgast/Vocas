@@ -1,21 +1,20 @@
-﻿using logic_layer;
-namespace logic_layer
+﻿namespace logic_layer
 {
-    public class Message
+    public class MessageModel
     {
         private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
         public int Id { get; private set; }
-        public User User { get; private set; }
+        public UserService User { get; private set; }
         public int GroupId { get; private set; }
         public string BodyText { get; private set; }
         public DateTime Time { get; private set; }
 
-        public Message(int id)
+        public MessageModel(int id)
         {
             //get a message from the db based on its id
         }
 
-        public Message(string bodyText, int userId, int groupId)
+        public MessageModel(string bodyText, int userId, int groupId)
         {
             BodyText = bodyText;
             User = new User(userId);
