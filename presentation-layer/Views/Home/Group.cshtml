@@ -1,5 +1,5 @@
 ﻿@page
-@model Vocas.Pages.GroupModel
+@model presentation_layer.Models.GroupPageViewModel
 @{
 }
 <div class="w-screen">
@@ -17,7 +17,7 @@
                         {
                             @if (even)
                             {
-                                @if (user.UserId == Model.currentUserId)
+                                @if (user.UserId == Model.CurrentUserId)
                                 {
                                     <p>@user.Username [you]</p>
                                 }
@@ -41,7 +41,7 @@
                         {
                             @if (!even)
                             {
-                                @if (user.UserId == Model.currentUserId)
+                                @if (user.UserId == Model.CurrentUserId)
                                 {
                                     <p>@user.Username [you]</p>
                                 }
@@ -73,14 +73,14 @@
                     <form>
                         @foreach (var user in Model.GroupInfo.Users)
                         {
-                            @if (user.UserId != Model.currentUserId)
+                            @if (user.UserId != Model.CurrentUserId)
                             {
                                 <label for="@user.UserId">@user.Username</label>
                                 <button id="@user.UserId" name="votedUser" value="@user.UserId" class="flex-none align-middle p-[5px] m-[5px] rounded-lg bg-slate-100">remove user</button>
                                 <p></p>
                             }
                         }
-                        <input type="hidden" name="votingUser" value="@Model.currentUserId" />
+                        <input type="hidden" name="votingUser" value="@Model.CurrentUserId" />
                         <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
                     </form>
                 </div>
@@ -97,7 +97,7 @@
             <div flex-col justify-between>
                 @foreach (var message in Model.Messages)
                 {
-                    @if (message.Id == Model.Editing && message.User.UserId == Model.currentUserId)
+                    @if (message.MessageId == Model.Editing && message.User.UserId == Model.CurrentUserId)
                     {
                         <div class="bg-sky-300 m-[20px] p-[10px] rounded-lg ml-[400px]">
                             <p>[you]</p>
@@ -110,14 +110,14 @@
                             </form>
                         </div>
                     }
-                    else if (message.User.UserId == Model.currentUserId)
+                    else if (message.User.UserId == Model.CurrentUserId)
                     {
                         <div class="bg-sky-300 m-[20px] p-[10px] rounded-lg ml-[1000px]">
                             <p>[you]</p>
                             <p>@message.BodyText</p>
                             <form>
                                 <input type="hidden" name="id" value="@Model.GroupInfo.GroupId" />
-                                <button name="editing" value="@message.Id">edit message</button>
+                                <button name="editing" value="@message.MessageId">edit message</button>
                             </form>
                         </div>
                     }

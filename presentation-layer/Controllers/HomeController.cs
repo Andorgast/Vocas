@@ -1,3 +1,4 @@
+using logic_layer;
 using Microsoft.AspNetCore.Mvc;
 using presentation_layer.Models;
 using System.Diagnostics;
@@ -6,12 +7,9 @@ namespace presentation_layer.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        private int CurrentUser = 7;
 
-        public IActionResult Privacy()
+        public IActionResult Index()
         {
             return View();
         }
@@ -20,6 +18,71 @@ namespace presentation_layer.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult UserList(int? groupCreate)
+        {
+            if(groupCreate != null)
+            {
+                GroupService groupService = new();
+                groupService.CreateNewGroup([(int)groupCreate]);
+                return Group(groupService.GroupModel.GroupId, null, null, null, null, null, null);
+            }
+            else
+            {
+                UserService userService = new();
+                List<UserViewModel> userList = [];
+                foreach (UserModel user in userService.UserModeList)
+                {
+                    userList.Add(new(user.UserId, user.Username, user.GetKD(), user.TeamKills, user.Playtime, user.FavoredFactions));
+                }
+                return View(new UserListViewModel(userList));
+            }
+        }
+
+        public IActionResult Group(int? id, string? newUser, int? votedUser, int? votingUser, int? editing, string? editedMessage, string? newMessage)
+        {
+            GroupService groupService = new();
+            if (id != null)
+            {
+                groupService.GetGroupById((int)id);
+                List<UserViewModel> userList = [];
+                foreach (UserModel user in groupService.GroupModel.Users)
+                {
+                    userList.Add(new(user.UserId, user.Username, user.GetKD(), user.TeamKills, user.Playtime, user.FavoredFactions));
+                }
+                GroupViewModel groupInfo = new(groupService.GroupModel.GroupId, userList);
+
+                MessageService messageService = new();
+                messageService.GetAllMessagesByGroup((int)id);
+                List<MessageViewModel> messageList = [];
+                foreach (MessageModel message in messageService.MessageModelList)
+                {
+                    var UserViewModel = new UserViewModel(message.User.UserId, message.User.Username, message.User.GetKD(), message.User.TeamKills, message.User.Playtime, message.User.FavoredFactions);
+                    messageList.Add(new(message.MessageId, message.BodyText, UserViewModel, message.GroupId));
+                }
+
+                messageService.EditMessage(CurrentUser, editedMessage, editing);
+
+                return View(new GroupPageViewModel(CurrentUser, groupInfo, groupService.GroupModel.Users.Count(), null, messageList, editing));
+            }
+            else
+            {
+                groupService.GetAllGroupsByUser(CurrentUser);
+                var allUsers = groupService.GroupModel.Users.ToArray();
+                List<GroupViewModel> groupList = [];
+                foreach (GroupModel group in groupService.GroupModelList)
+                {
+                    List<UserViewModel> userList = [];
+                    foreach (UserModel user in allUsers)
+                    {
+                        userList.Add(new(user.UserId, user.Username, user.GetKD(), user.TeamKills, user.Playtime, user.FavoredFactions));
+                    }
+                    groupList.Add(new(group.GroupId, userList));
+                }
+
+                return View(new GroupPageViewModel(CurrentUser, null, 0, groupList, null, null));
+            }
         }
     }
 }

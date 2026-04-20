@@ -43,20 +43,23 @@ namespace logic_layer
             return false;
         }
 
-        public bool EditMessage(int editingUser, string bodyText, int messageId)
+        public bool EditMessage(int editingUser, string? bodyText, int? messageId)
         {
-            foreach (MessageModel messageModel in MessageModelList)
+            if (bodyText != null && messageId != null)
             {
-                if (messageModel.MessageId == messageId)
+                foreach (MessageModel messageModel in MessageModelList)
                 {
-                    if (editingUser != messageModel.User.UserId)
+                    if (messageModel.MessageId == messageId)
                     {
-                        return false;
-                    }
-                    else
-                    {
-                        MessageRepo.EditMessage(new MessageDTO(messageModel.MessageId, messageModel.BodyText, messageModel.User.UserId, messageModel.GroupId), bodyText);
-                        return true;
+                        if (editingUser != messageModel.User.UserId)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            MessageRepo.EditMessage(new MessageDTO(messageModel.MessageId, messageModel.BodyText, messageModel.User.UserId, messageModel.GroupId), bodyText);
+                            return true;
+                        }
                     }
                 }
             }

@@ -92,5 +92,19 @@
                 return false;
             }
         }
+
+        public decimal GetKD()
+        {
+            decimal KD;
+            if (Deaths > 0)
+            {
+                KD = Math.Round(((decimal)Kills / (decimal)Deaths), 1);
+            }
+            else
+            {
+                KD = (decimal)Kills;
+            }
+            return KD;
+        }
     }
 }

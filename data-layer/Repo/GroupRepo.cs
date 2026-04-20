@@ -41,7 +41,7 @@ namespace data_layer
             List<int> tempList = [];
             while (reader.Read())
             {
-                tempList.Add(reader.GetInt32(1));
+                tempList.Add(reader.GetInt32(0));
             }
             GroupDTO = new GroupDTO(groupId, tempList);
             conn.Close();

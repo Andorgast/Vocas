@@ -1,13 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace Vocas.Pages
+namespace presentation_layer.Models
 {
-    public class IndexModel : PageModel
+    public class IndexViewModel
     {
-        public void OnGet()
-        {
-
-        }
     }
 }

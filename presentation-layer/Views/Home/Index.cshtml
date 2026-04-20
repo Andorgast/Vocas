@@ -1,8 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@page
+@{
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="w-screen">
+    <p class="m-[5px] flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-200"><a asp-area="" asp-controller="Home" asp-action="UserList">List of all users</a></p>
+    <p class="m-[5px] flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-200"><a asp-area="" asp-controller="Home" asp-action="Group">List of all groups</a></p>
 </div>
