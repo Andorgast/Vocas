@@ -1,37 +1,58 @@
-﻿namespace logic_layer
+﻿using data_layer;
+
+namespace logic_layer
 {
     public class GroupService
     {
-        public UserAdding AddUserToGroup(string username)
+        private GroupRepo GroupRepo = new();
+        private UserService UserService = new();
+        public List<GroupModel> GroupModelList { get; private set; } = [];
+        public GroupModel GroupModel { get; private set; }
+        public enum UserRemoving
         {
-            if (Users.Count() > (MaxGroupSize - 1))
+            user_not_in_group,
+            already_voted,
+            deleted_succes,
+            voted_succes
+        }
+
+        public void GetGroupById(int id)
+        {
+            GroupRepo.GetGroupById(id);
+            foreach (int userId in GroupRepo.GroupDTO.Users)
             {
-                return UserAdding.group_is_full;
+                UserService.GetUserById(userId);
             }
+            GroupModel = new GroupModel(GroupRepo.GroupDTO.GroupId, UserService.UserModeList);
+        }
 
-            //get user based on username from db
-            var userId = 2;
-
-            foreach (var user in Users)
+        public void GetAllGroupsByUser(int userId)
+        {
+            GroupRepo.GetAllGroupsByUser(userId);
+            foreach (GroupDTO groupDTO in GroupRepo.GroupDTOList)
             {
-                if (user.UserId == userId)
+                UserService = new();
+                foreach (int groupUserID in GroupRepo.GroupDTO.Users)
                 {
-                    return UserAdding.user_already_in_group;
+                    UserService.GetUserById(groupUserID);
                 }
+                GroupModelList.Add(new GroupModel(GroupRepo.GroupDTO.GroupId, UserService.UserModeList));
             }
-            
-            //add user to group in db
+        }
 
-            Users.Add(new User(userId));
-            return UserAdding.success;
+        public void AddUserToGroup(string username)
+        {
+            UserService.GetUserByName(username);
+            GroupModel.AddUserToGroup(UserService.UserModel);
         }
 
         public UserRemoving VoteForRemoval(int votingUser, int votedUser)
         {
             bool votedIsInGroup = false;
             bool votingIsInGroup = false;
-            List<int> votingUsers = [];
-            foreach (var user in Users)
+            List<int> votingUsers = GroupRepo.GetRemovalVotes(votingUser, votedUser);
+
+            foreach (var user in GroupModel.Users)
             {
                 if (user.UserId == votedUser)
                 {
@@ -46,47 +67,32 @@
             {
                 return UserRemoving.user_not_in_group;
             }
-            
-            //get all id's of users who voted on votedUser
 
-            foreach(int userId in votingUsers)
+            foreach (int userId in votingUsers)
             {
-                if(userId == votingUser)
+                if (userId == votingUser)
                 {
                     return UserRemoving.already_voted;
                 }
             }
-            votingUsers.Add(votingUser);
-            if ((float)votingUsers.Count() > ((float)Users.Count()/2))
-            {
-                //delete user from group, remove their votes in the group and remove the votes for them in the group
 
-                UserService? tempUserContainer = null;
-                foreach(var user in Users)
-                {
-                    if (user.UserId == votedUser) 
-                    {
-                        tempUserContainer = user;
-                    }
-                }
-                if (tempUserContainer != null)
-                {
-                    Users.Remove(tempUserContainer);
-                }
-                else
-                {
-                    return UserRemoving.user_not_in_group;
-                }
+            votingUsers.Add(votingUser);
+            if ((float)votingUsers.Count() > ((float)GroupModel.Users.Count() / 2))
+            {
+                GroupRepo.RemoveUserFromGroup(votedUser);
+                UserService.GetUserById(votedUser);
+                GroupModel.RemoveUser(UserService.UserModel);
                 return UserRemoving.deleted_succes;
             }
-            
-            //add the vote to the db
+
+            GroupRepo.AddVoteForRenoval(votingUser, votedUser);
 
             return UserRemoving.voted_succes;
         }
 
-        public bool AddGroupToDb()
+        public bool CreateNewGroup(List<int> users)
         {
+            GroupRepo.AddGroupToDb(new GroupDTO(users));
             //create the group in the db and add all users to that group
             return true;
         }

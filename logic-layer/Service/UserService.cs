@@ -3,86 +3,67 @@ namespace logic_layer
 {
     public class UserService
     {
-        public bool AddFavoredFaction(List<string> factionsToAdd)
+        private UserRepo UserRepo = new();
+        private AvailabilityRepo AvailabilityRepo = new();
+        public List<UserModel> UserModeList { get; private set; } = [];
+        public UserModel UserModel { get; private set; }
+        public List<AvailabilityModel> AvailabilityModelList { get; private set; } = [];
+
+        public void GetUserById(int userId)
         {
-            bool noDuplicates = true;
-            bool changedFaction = false;
-            foreach (string faction in factionsToAdd)
-            {
-                if (FavoredFactions.Contains(faction) || FavoredFactions == "all")
-                {
-                    noDuplicates = false;
-                }
-                else if (FavoredFactions.Contains("&"))
-                {
-                    FavoredFactions = "all";
-                    changedFaction = true;
-                }
-                else
-                {
-                    //bots are always behind the & sign, squids always in front, bugs adapt based on the other faction
-                    if(FavoredFactions == "bots" || faction == "squids")
-                    {
-                        FavoredFactions = faction + " & " + FavoredFactions;
-                    }
-                    else if (FavoredFactions == "squids" || faction == "bots")
-                    {
-                        FavoredFactions = FavoredFactions + " & " + faction;
-                    }
-                    changedFaction = true;
-                }
-            }
-            if (changedFaction)
-            {
-                //update db favored faction
-            }
-            return noDuplicates;
+            UserRepo.GetUserById(userId);
+            UserModeList.Add(new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions));
+            UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
         }
 
-        public bool DayAvailableChange(string dayToChange, TimeSpan newStartTime, TimeSpan newEndTime, bool newDay)
+        public void GetUserByName(string username)
         {
-            foreach (var dayAvailable in Available)
-            {
-                if (dayAvailable.Day == dayToChange && !newDay)
-                {
-                    dayAvailable.StartTime = newStartTime;
-                    dayAvailable.EndTime = newEndTime;
-                    return true;
-                }
-                else if (dayAvailable.Day == dayToChange && newDay)
-                {
-                    return false;
-                }
-            }
-            if (newDay)
-            {
-                Available.Add(
-                    new Availability(dayToChange, newStartTime, newEndTime)
-                );
-                return true;
-            }
-            return false;
+            UserRepo.GetUserByName(username);
+            UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
         }
 
-        public bool RemoveDayAvailable(string dayToChange)
+        public void GetAllUsers()
         {
-            AvailabilityService? dayUpdater = null;
-            foreach (var dayAvailable in Available)
+            UserRepo.GetAllUsers();
+            foreach(UserDTO userDTO in UserRepo.UserDTOList)
             {
-                if (dayAvailable.Day == dayToChange)
-                {
-                    dayUpdater = dayAvailable;
-                }
-            }
-            if (dayUpdater != null)
-            {
-                Available.Remove(dayUpdater);
-                return true;
-            }
-            else
-            {
-                return false;
+                UserModeList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
             }
         }
+
+        public string? AddFavoredFaction(List<string> factionsToAdd)
+        {
+            string factionsBefore = UserModel.FavoredFactions;
+            string? duplicates = UserModel.AddFavoredFaction(factionsToAdd);
+            if(factionsBefore != UserModel.FavoredFactions)
+            {
+                UserRepo.UpdateUserData();
+            }
+            return duplicates;
+        }
+
+        public void RemoveDayAvailable(int id)
+        {
+            if (UserModel.RemoveDayAvailable(id))
+            {
+                foreach (AvailabilityModel availabilityModel in AvailabilityModelList)
+                {
+                    if (availabilityModel.Id == id)
+                    {
+                        AvailabilityRepo.RemoveAvailability(availabilityModel.Id);
+                    }
+                }
+            }
+        }
+
+        //public void UpdateAvailability(int id)
+        //{
+        //    AvailabilityRepo.GetAvailabilityById(id);
+        //}
+
+        //public void AddDayAvailable()
+        //{
+        //    AvailabilityRepo.AddAvailability();
+        //}
     }
 }

@@ -1,5 +1,4 @@
-﻿using data_layer.DTO;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 namespace data_layer
 {
     public class AvailabilityRepo

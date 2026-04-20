@@ -2,12 +2,14 @@
 {
     public class AvailabilityModel
     {
-        public string Day { get; set; }
+        public int Id { get; private set; }
+        public string Day { get; private set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
-        
-        public AvailabilityModel(string day, TimeSpan startTime, TimeSpan endTime)
+
+        public AvailabilityModel(int id, string day, TimeSpan startTime, TimeSpan endTime)
         {
+            Id = id;
             Day = day;
             StartTime = startTime;
             EndTime = endTime;

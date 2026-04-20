@@ -36,7 +36,7 @@ namespace data_layer
             using var reader = cmd.ExecuteReader();
             if (!reader.Read())
             {
-                // TODO: this code should never trigger, it is here in case the database doesnt have the last insert id, but it should because we just inserted something, check with teacher if this should stay
+                // TODO: this code should never trigger, it is here in case the database doesnt have the last insert id, but it should because we just inserted something, i need to check with teacher if this should stay
                 conn.Close();
                 return messageDTO;
             }
@@ -45,14 +45,14 @@ namespace data_layer
             return messageDTO;
         }
 
-        public bool DeleteMessage(MessageDTO messageDTO)
+        public bool DeleteMessage(int messageId)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
                 @"DELETE FROM messages WHERE id = @messageId", conn
             );
-            cmd.Parameters.AddWithValue("@messageId", messageDTO.MessageId);
+            cmd.Parameters.AddWithValue("@messageId", messageId);
             cmd.ExecuteNonQuery();
             conn.Close();
             return true;

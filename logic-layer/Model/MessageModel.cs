@@ -2,43 +2,18 @@
 {
     public class MessageModel
     {
-        private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
-        public int Id { get; private set; }
-        public UserService User { get; private set; }
+        public int MessageId { get; private set; }
+        public UserModel User { get; private set; }
         public int GroupId { get; private set; }
         public string BodyText { get; private set; }
         public DateTime Time { get; private set; }
 
-        public MessageModel(int id)
+        public MessageModel(int messageId, string bodyText, UserModel user, int groupId)
         {
-            //get a message from the db based on its id
-        }
-
-        public MessageModel(string bodyText, int userId, int groupId)
-        {
+            MessageId = messageId;
             BodyText = bodyText;
-            User = new User(userId);
+            User = user;
             GroupId = groupId;
-            SendMessage();
-        }
-
-        public bool SendMessage()
-        {
-            //send the message to the db
-            return true;
-        }
-
-        public bool DeleteMessage(int deletingUser)
-        {
-            if(deletingUser != User.UserId)
-            {
-                return false;
-            }
-            else
-            {
-                //delete a message from the db
-                return true;
-            }
         }
 
         public bool EditMessage(int editingUser, string bodyText)
@@ -49,7 +24,7 @@
             }
             else
             {
-                //edit a message in the db
+                BodyText = bodyText;
                 return true;
             }
         }

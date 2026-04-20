@@ -1,4 +1,5 @@
 ﻿using data_layer;
+using static logic_layer.GroupService;
 
 namespace logic_layer
 {
@@ -14,7 +15,7 @@ namespace logic_layer
             Users = users;
         }
 
-        public bool AddUserToGroup(int userId)
+        public bool AddUserToGroup(UserModel userToAdd)
         {
             if (Users.Count() > (MaxGroupSize - 1))
             {
@@ -22,13 +23,18 @@ namespace logic_layer
             }
             foreach (var user in Users)
             {
-                if (user.UserId == userId)
+                if (user.UserId == userToAdd.UserId)
                 {
                     return false;
                 }
             }
-            Users.Add(new UserModel(userId));
+            Users.Add(userToAdd);
             return true;
+        }
+
+        public void RemoveUser(UserModel userToRemove)
+        {
+            Users.Remove(userToRemove);
         }
     }
 }

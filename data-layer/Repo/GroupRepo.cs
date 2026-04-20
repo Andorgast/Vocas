@@ -86,7 +86,7 @@ namespace data_layer
             return votingUsers;
         }
 
-        public void RemoveUserFromGroup(int votingUser, int votedUser)
+        public void RemoveUserFromGroup(int votedUser)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -124,14 +124,6 @@ namespace data_layer
             cmd.ExecuteNonQuery();
             conn.Close();
         }
-
-        public void VoteForRemoval(int votingUser, int votedUser){}
-
-        //user in group check needs to happen on logic layer
-
-        //user already voted check needs to happen on logic layer
-
-        //counting if there are enough votes needs to happen on the logic layer
 
         public bool AddGroupToDb(GroupDTO groupDTO)
         {

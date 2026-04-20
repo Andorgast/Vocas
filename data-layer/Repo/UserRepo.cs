@@ -25,6 +25,24 @@ namespace data_layer
             return true;
         }
 
+        public bool GetUserByName(string username)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT * FROM users WHERE username=@username", conn
+            );
+            cmd.Parameters.AddWithValue("@username", username);
+            var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                conn.Close();
+                return false;
+            }
+            UserDTO = new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
+            return true;
+        }
+
         public bool GetAllUsers()
         {
             var conn = new MySqlConnection(connectionString);
@@ -37,6 +55,11 @@ namespace data_layer
             {
                 UserDTOList.Add(new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7)));
             }
+            return true;
+        }
+
+        public bool UpdateUserData()
+        {
             return true;
         }
 
