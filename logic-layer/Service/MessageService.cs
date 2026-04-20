@@ -10,17 +10,21 @@ namespace logic_layer
         public void GetAllMessagesByGroup(int groupId)
         {
             MessageRepo.GetAllMessagesByGroup(groupId);
-            foreach(MessageDTO messageDTO in MessageRepo.MessageDTOList)
+            foreach (MessageDTO messageDTO in MessageRepo.MessageDTOList)
             {
                 UserService.GetUserById(messageDTO.UserId);
                 MessageModelList.Add(new MessageModel(messageDTO.MessageId, messageDTO.BodyText, UserService.UserModel, messageDTO.GroupId));
             }
         }
 
-        public void SendMessage(MessageModel messageToSend)
+        public bool SendMessage(string? bodyText, int groupId, int userId)
         {
-            MessageModelList.Add(messageToSend);
-            MessageRepo.SendMessage(new MessageDTO(messageToSend.MessageId, messageToSend.BodyText, messageToSend.User.UserId, messageToSend.GroupId));
+            if (bodyText != null)
+            {
+                MessageRepo.SendMessage(new MessageDTO(bodyText, userId, groupId));
+                return true;
+            }
+            return false;
         }
 
         public bool DeleteMessage(int deletingUser, int messageId)

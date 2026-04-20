@@ -38,6 +38,7 @@ namespace logic_layer
                 }
                 GroupModelList.Add(new GroupModel(GroupRepo.GroupDTO.GroupId, UserService.UserModeList));
             }
+            GroupModel = new GroupModel(GroupRepo.GroupDTO.GroupId, UserService.UserModeList);
         }
 
         public void AddUserToGroup(string username)

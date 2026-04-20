@@ -9,24 +9,13 @@ namespace presentation_layer.Controllers
     {
         private int CurrentUser = 7;
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
         public IActionResult UserList(int? groupCreate)
         {
-            if(groupCreate != null)
+            if (groupCreate != null)
             {
                 GroupService groupService = new();
                 groupService.CreateNewGroup([(int)groupCreate]);
-                return Group(groupService.GroupModel.GroupId, null, null, null, null, null, null);
+                return GroupPage(groupService.GroupModel.GroupId, null, null, null, null, null, null);
             }
             else
             {
@@ -40,7 +29,7 @@ namespace presentation_layer.Controllers
             }
         }
 
-        public IActionResult Group(int? id, string? newUser, int? votedUser, int? votingUser, int? editing, string? editedMessage, string? newMessage)
+        public IActionResult GroupPage(int? id, string? newUser, int? votedUser, int? votingUser, int? editing, string? editedMessage, string? newMessage)
         {
             GroupService groupService = new();
             if (id != null)
@@ -62,27 +51,45 @@ namespace presentation_layer.Controllers
                     messageList.Add(new(message.MessageId, message.BodyText, UserViewModel, message.GroupId));
                 }
 
+                if(messageService.SendMessage(newMessage, groupService.GroupModel.GroupId, CurrentUser))
+                {
+                    newMessage = null;
+                    return RedirectToPage("/GroupPage");
+                }
                 messageService.EditMessage(CurrentUser, editedMessage, editing);
 
-                return View(new GroupPageViewModel(CurrentUser, groupInfo, groupService.GroupModel.Users.Count(), null, messageList, editing));
+                return View(new GroupPageViewModel(CurrentUser, groupInfo, groupService.GroupModel.Users.Count(), messageList, editing));
             }
             else
             {
                 groupService.GetAllGroupsByUser(CurrentUser);
-                var allUsers = groupService.GroupModel.Users.ToArray();
                 List<GroupViewModel> groupList = [];
                 foreach (GroupModel group in groupService.GroupModelList)
                 {
                     List<UserViewModel> userList = [];
-                    foreach (UserModel user in allUsers)
+                    foreach (UserModel user in groupService.GroupModel.Users)
                     {
                         userList.Add(new(user.UserId, user.Username, user.GetKD(), user.TeamKills, user.Playtime, user.FavoredFactions));
                     }
                     groupList.Add(new(group.GroupId, userList));
                 }
-
-                return View(new GroupPageViewModel(CurrentUser, null, 0, groupList, null, null));
+                if (groupList.Count <= 0)
+                {
+                    return Index();
+                }
+                return View(new GroupPageViewModel(CurrentUser, groupList));
             }
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
