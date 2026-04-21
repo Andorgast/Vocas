@@ -1,4 +1,0 @@
-﻿Harold,monday/18:00/20:00.thursday/13:00/15:00,23,200,4543,13:21:22,bots.squids
-Jarold,tuesday/18:00/20:00.wednesday/13:00/15:00,23,200,4543,13:21:22,bots.squids
-Barold,friday/18:00/20:00.saturday/13:00/15:00,400,200,4543,13:21:22,bots.bugs
-Carold,friday/18:00/20:00.sunday/13:00/15:00,23,200,4543,13:21:22,bots.bugs
