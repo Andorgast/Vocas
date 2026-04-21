@@ -16,16 +16,20 @@ namespace logic_layer
             UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
         }
 
-        public void GetUserByName(string username)
+        public bool GetUserByName(string username)
         {
-            UserRepo.GetUserByName(username);
+            if (!UserRepo.GetUserByName(username))
+            {
+                return false;
+            }
             UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
+            return true;
         }
 
         public void GetAllUsers()
         {
             UserRepo.GetAllUsers();
-            foreach(UserDTO userDTO in UserRepo.UserDTOList)
+            foreach (UserDTO userDTO in UserRepo.UserDTOList)
             {
                 UserModeList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
             }
@@ -35,7 +39,7 @@ namespace logic_layer
         {
             string factionsBefore = UserModel.FavoredFactions;
             string? duplicates = UserModel.AddFavoredFaction(factionsToAdd);
-            if(factionsBefore != UserModel.FavoredFactions)
+            if (factionsBefore != UserModel.FavoredFactions)
             {
                 UserRepo.UpdateUserData();
             }

@@ -1,7 +1,4 @@
-﻿using data_layer;
-using static logic_layer.GroupService;
-
-namespace logic_layer
+﻿namespace logic_layer
 {
     public class GroupModel
     {

@@ -1,5 +1,3 @@
-using Google.Protobuf.Reflection;
-
 namespace presentation_layer.Models
 {
     public class GroupPageViewModel

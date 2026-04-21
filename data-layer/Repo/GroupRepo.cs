@@ -23,7 +23,7 @@ namespace data_layer
             }
             conn.Close();
 
-            foreach(int groupId in groupIdList)
+            foreach (int groupId in groupIdList)
             {
                 GroupDTOList.Add(GetGroupById(groupId));
             }
@@ -130,7 +130,7 @@ namespace data_layer
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
-                @"INSERT INTO game_groups (name) VALUE (@name); SELECT LAST_INSERT_ID();", conn    
+                @"INSERT INTO game_groups (name) VALUE (@name); SELECT LAST_INSERT_ID();", conn
             );
             cmd.Parameters.AddWithValue("@name", "name of the group");
             using var reader = cmd.ExecuteReader();

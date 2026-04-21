@@ -6,7 +6,7 @@
         public string Day { get; private set; }
         public TimeSpan StartTime { get; private set; }
         public TimeSpan EndTime { get; private set; }
-        
+
         public AvailabilityViewModel(int id, string day, TimeSpan startTime, TimeSpan endTime)
         {
             Id = id;

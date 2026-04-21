@@ -11,8 +11,4 @@
     <ProjectReference Include="..\logic-layer\logic-layer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Temp_old_pages\" />
-  </ItemGroup>
-
 </Project>

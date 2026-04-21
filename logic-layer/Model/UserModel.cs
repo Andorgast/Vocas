@@ -40,7 +40,7 @@
                 else
                 {
                     //bots are always behind the & sign, squids always in front, bugs adapt based on the other faction
-                    if(FavoredFactions == "bots" || faction == "squids")
+                    if (FavoredFactions == "bots" || faction == "squids")
                     {
                         FavoredFactions = faction + " & " + FavoredFactions;
                     }

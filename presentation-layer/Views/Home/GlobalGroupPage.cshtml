@@ -1,0 +1,63 @@
+﻿@model GroupPageViewModel
+@{
+}
+<div class="w-screen">
+    <div class="flex justify-between flex-wrap">
+        @foreach (var group in Model.UserGroups)
+        {
+            <div class="m-[10px] p-[20px] rounded-lg bg-slate-300 h-min">
+                <div class="flex justify-between">
+                    @{
+                        bool even = false;
+                    }
+                    @foreach (var user in group.Users)
+                    {
+                        @if (even)
+                        {
+                            @if (user.UserId == Model.CurrentUserId)
+                            {
+                                <p>@user.Username [you]</p>
+                            }
+                            else
+                            {
+                                <p>@user.Username</p>
+                            }
+                            even = false;
+                        }
+                        else
+                        {
+                            even = true;
+                        }
+                    }
+                </div>
+                <div class="flex justify-between">
+                    @{
+                        even = false;
+                    }
+                    @foreach (var user in group.Users)
+                    {
+                        @if (!even)
+                        {
+                            @if (user.UserId == Model.CurrentUserId)
+                            {
+                                <p>@user.Username [you]</p>
+                            }
+                            else
+                            {
+                                <p>@user.Username</p>
+                            }
+                            even = true;
+                        }
+                        else
+                        {
+                            even = false;
+                        }
+                    }
+                </div>
+                <div class="m-[5px]">
+                    <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-controller="Home" asp-action="GroupPage" asp-route-id="@group.GroupId"> Go to group page</a></p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

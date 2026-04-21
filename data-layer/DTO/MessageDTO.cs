@@ -16,7 +16,7 @@
             GroupId = groupId;
         }
 
-        public MessageDTO(string bodyText, int userId,  int groupId)
+        public MessageDTO(string bodyText, int userId, int groupId)
         {
             //for new messages where the id isnt know yet
             BodyText = bodyText;
