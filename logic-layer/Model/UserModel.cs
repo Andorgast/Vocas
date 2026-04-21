@@ -4,7 +4,7 @@
     {
         public string Username { get; set; } = "";
         //private string Password = "";
-        public List<AvailabilityModel> Available { get; private set; } = new();
+        public List<AvailabilityModel> Availability { get; private set; } = [];
         public int Kills { get; private set; }
         public int Deaths { get; private set; }
         public int TeamKills { get; private set; }
@@ -53,14 +53,14 @@
             return duplicates;
         }
 
-        public bool DayAvailableChange(string dayToChange, TimeSpan newStartTime, TimeSpan newEndTime)
+        public bool DayAvailableChange(AvailabilityModel newAvailability)
         {
-            foreach (var dayAvailable in Available)
+            foreach (var moment in Availability)
             {
-                if (dayAvailable.Day == dayToChange)
+                if (moment.Day == newAvailability.Day)
                 {
-                    dayAvailable.StartTime = newStartTime;
-                    dayAvailable.EndTime = newEndTime;
+                    moment.StartTime = newAvailability.StartTime;
+                    moment.EndTime = newAvailability.EndTime;
                     return true;
                 }
             }
@@ -69,13 +69,13 @@
 
         public void AddNewDayAvailable(string dayToAdd, TimeSpan startTime, TimeSpan endTime, int id)
         {
-            Available.Add(new AvailabilityModel(id, dayToAdd, startTime, endTime));
+            Availability.Add(new AvailabilityModel(id, dayToAdd, startTime, endTime));
         }
 
         public bool RemoveDayAvailable(int id)
         {
             AvailabilityModel? dayUpdater = null;
-            foreach (var dayAvailable in Available)
+            foreach (var dayAvailable in Availability)
             {
                 if (dayAvailable.Id == id)
                 {
@@ -84,7 +84,7 @@
             }
             if (dayUpdater != null)
             {
-                Available.Remove(dayUpdater);
+                Availability.Remove(dayUpdater);
                 return true;
             }
             else

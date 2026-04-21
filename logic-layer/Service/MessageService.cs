@@ -1,73 +1,51 @@
 ﻿using data_layer;
+using Google.Protobuf;
 namespace logic_layer
 {
     public class MessageService
     {
         private MessageRepo MessageRepo = new();
         private UserService UserService = new();
-        public List<MessageModel> MessageModelList { get; private set; } = [];
 
-        public void GetAllMessagesByGroup(int groupId)
+        public List<MessageModel> GetAllMessagesByGroup(int groupId)
         {
-            MessageRepo.GetAllMessagesByGroup(groupId);
-            foreach (MessageDTO messageDTO in MessageRepo.MessageDTOList)
+            List<MessageModel> messageModelList = [];
+            List<MessageDTO> messageDTOList = MessageRepo.GetAllMessagesByGroup(groupId);
+            foreach (MessageDTO messageDTO in messageDTOList)
             {
-                UserService.GetUserById(messageDTO.UserId);
-                MessageModelList.Add(new MessageModel(messageDTO.MessageId, messageDTO.BodyText, UserService.UserModel, messageDTO.GroupId));
+                messageModelList.Add(new(messageDTO.MessageId, messageDTO.BodyText, messageDTO.UserId, messageDTO.GroupId));
             }
+            return messageModelList;
         }
 
-        public bool SendMessage(string? bodyText, int groupId, int userId)
+        public MessageModel GetMessageById(int messageId)
         {
-            if (bodyText != null)
-            {
-                MessageRepo.SendMessage(new MessageDTO(bodyText, userId, groupId));
-                return true;
-            }
-            return false;
+            MessageDTO messageDTO = MessageRepo.GetMessageById(messageId);
+            return new(messageDTO.MessageId, messageDTO.BodyText, messageDTO.UserId, messageDTO.GroupId);
         }
 
-        public bool DeleteMessage(int deletingUser, int messageId)
+        public void SendMessage(MessageModel message)
         {
-            foreach (MessageModel messageModel in MessageModelList)
-            {
-                if (messageModel.MessageId == messageId)
-                {
-                    if (deletingUser != messageModel.User.UserId)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        MessageRepo.DeleteMessage(messageId);
-                        return true;
-                    }
-                }
-            }
-            return false;
+            MessageRepo.SendMessage(new(message.BodyText, message.UserId, message.GroupId));
         }
 
-        public bool EditMessage(int editingUser, string? bodyText, int? messageId)
+        public void DeleteMessage(int deletingUser, int messageId)
         {
-            if (bodyText != null && messageId != null)
+            MessageModel oldMessage = GetMessageById(messageId);
+            if (oldMessage.UserId == deletingUser)
             {
-                foreach (MessageModel messageModel in MessageModelList)
-                {
-                    if (messageModel.MessageId == messageId)
-                    {
-                        if (editingUser != messageModel.User.UserId)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            MessageRepo.EditMessage(new MessageDTO(messageModel.MessageId, messageModel.BodyText, messageModel.User.UserId, messageModel.GroupId), bodyText);
-                            return true;
-                        }
-                    }
-                }
+                MessageRepo.DeleteMessage(messageId);
             }
-            return false;
+            
+        }
+
+        public void EditMessage(MessageModel message)
+        {
+            MessageModel oldMessage = GetMessageById(message.MessageId);
+            if (oldMessage.UserId == message.UserId)
+            {
+                MessageRepo.EditMessage(new(message.MessageId, message.BodyText, message.UserId, message.GroupId));
+            }
         }
     }
 }

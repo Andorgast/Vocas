@@ -6,92 +6,70 @@ namespace logic_layer
     {
         private GroupRepo GroupRepo = new();
         private UserService UserService = new();
-        public List<GroupModel> GroupModelList { get; private set; } = [];
-        public GroupModel GroupModel { get; private set; }
+
         public enum UserRemoving
         {
-            null_value,
             user_not_in_group,
             already_voted,
             deleted_succes,
             voted_succes
         }
 
-        public bool CheckIfUserInGroup(UserModel userToCheck)
+        //public bool CheckIfUserInGroup(UserModel userToCheck)
+        //{
+        //    foreach (UserModel user in GroupModel.Users)
+        //    {
+        //        if (user.UserId == userToCheck.UserId)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        public GroupModel GetGroupById(int id)
         {
-            foreach (UserModel user in GroupModel.Users)
-            {
-                if (user.UserId == userToCheck.UserId)
-                {
-                    return true;
-                }
-            }
-            return false;
+            GroupDTO groupDTO = GroupRepo.GetGroupById(id);
+            return new(groupDTO.GroupId, groupDTO.Users);
         }
 
-        public void GetGroupById(int id)
+        public List<GroupModel> GetAllGroupsByUser(int userId)
         {
-            GroupRepo.GetGroupById(id);
-            foreach (int userId in GroupRepo.GroupDTO.Users)
+            List<GroupDTO> groupDTOList = GroupRepo.GetAllGroupsByUser(userId);
+            List<GroupModel> groupModelList = [];
+            List<UserModel> users = [];
+            foreach (GroupDTO groupDTO in groupDTOList)
             {
-                UserService.GetUserById(userId);
+                groupModelList.Add(new(groupDTO.GroupId, groupDTO.Users));
             }
-            GroupModel = new GroupModel(GroupRepo.GroupDTO.GroupId, UserService.UserModeList);
+            return groupModelList;
         }
 
-        public void GetAllGroupsByUser(int userId)
+        public UserModel? AddUserToGroup(string username, GroupModel group)
         {
-            GroupRepo.GetAllGroupsByUser(userId);
-            foreach (GroupDTO groupDTO in GroupRepo.GroupDTOList)
+            UserModel? userModel = UserService.GetUserByName(username);
+            if (userModel == null || !group.AddUserToGroup(userModel.UserId))
             {
-                UserService = new();
-                foreach (int groupUserID in groupDTO.Users)
-                {
-                    UserService.GetUserById(groupUserID);
-                }
-                GroupModelList.Add(new GroupModel(groupDTO.GroupId, UserService.UserModeList));
+                userModel = null;
+                return userModel;
             }
-            GroupModel = new GroupModel(GroupRepo.GroupDTO.GroupId, UserService.UserModeList);
+            GroupRepo.AddUserToGroup(new GroupDTO(group.GroupId, group.UserIds), userModel.UserId);
+            return userModel;
         }
 
-        public bool AddUserToGroup(string? username)
-        {
-            if (username != null)
-            {
-                if (!UserService.GetUserByName(username))
-                {
-                    return false;
-                }
-                GroupModel.AddUserToGroup(UserService.UserModel);
-
-                List<int> tempIdList = [];
-                foreach (UserModel user in GroupModel.Users)
-                {
-                    tempIdList.Add(user.UserId);
-                }
-                GroupRepo.AddUserToGroup(new GroupDTO(GroupModel.GroupId, tempIdList), UserService.UserModel.UserId);
-                return true;
-            }
-            return false;
-        }
-
-        public UserRemoving VoteForRemoval(int? votingUser, int? votedUser)
+        public UserRemoving VoteForRemoval(int votingUser, int votedUser, GroupModel group)
         {
             bool votedIsInGroup = false;
             bool votingIsInGroup = false;
-            if (votingUser == null || votedUser == null)
-            {
-                return UserRemoving.null_value;
-            }
-            List<int> votingUsers = GroupRepo.GetRemovalVotes((int)votingUser, (int)votedUser);
+            List<int> votingUserIds = GroupRepo.GetRemovalVotes(votingUser, votedUser, group.GroupId);
 
-            foreach (var user in GroupModel.Users)
+            foreach (var user in group.UserIds)
             {
-                if (user.UserId == votedUser)
+                if (user == votedUser)
                 {
                     votedIsInGroup = true;
                 }
-                if (user.UserId == votingUser)
+                if (user == votingUser)
                 {
                     votingIsInGroup = true;
                 }
@@ -101,7 +79,7 @@ namespace logic_layer
                 return UserRemoving.user_not_in_group;
             }
 
-            foreach (int userId in votingUsers)
+            foreach (int userId in votingUserIds)
             {
                 if (userId == votingUser)
                 {
@@ -109,32 +87,23 @@ namespace logic_layer
                 }
             }
 
-            votingUsers.Add((int)votingUser);
-            if ((float)votingUsers.Count() > ((float)GroupModel.Users.Count() / 2))
+            votingUserIds.Add(votingUser);
+            if ((float)votingUserIds.Count() > ((float)group.UserIds.Count() / 2))
             {
-                GroupRepo.RemoveUserFromGroup((int)votedUser);
-                UserService.GetUserById((int)votedUser);
-                GroupModel.RemoveUser(UserService.UserModel);
+                GroupRepo.RemoveUserFromGroup(votedUser, group.GroupId);
+                group.RemoveUser(votedUser);
                 return UserRemoving.deleted_succes;
             }
 
-            GroupRepo.AddVoteForRenoval((int)votingUser, (int)votedUser);
+            GroupRepo.AddVoteForRenoval(votingUser, votedUser, group.GroupId);
 
             return UserRemoving.voted_succes;
         }
 
-        public bool CreateNewGroup(List<int> users)
+        public GroupModel CreateNewGroup(List<int> users)
         {
-            GroupRepo.AddGroupToDb(new GroupDTO(users));
-            UserService userServiceTemp = new();
-            List<UserModel> userModelListTemp = [];
-            foreach (int userId in users)
-            {
-                userServiceTemp.GetUserById(userId);
-                userModelListTemp.Add(userServiceTemp.UserModel);
-            }
-            GroupModel = new GroupModel(GroupRepo.GroupDTO.GroupId, userModelListTemp);
-            return true;
+            GroupDTO groupDTO = GroupRepo.AddGroupToDb(new GroupDTO(users));
+            return new(groupDTO.GroupId, users);
         }
     }
 }

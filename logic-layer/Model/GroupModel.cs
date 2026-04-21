@@ -4,34 +4,34 @@
     {
         public int GroupId { get; private set; }
         public int MaxGroupSize { get; private set; } = 4;
-        public List<UserModel> Users { get; private set; } = [];
+        public List<int> UserIds { get; private set; } = [];
 
-        public GroupModel(int groupId, List<UserModel> users)
+        public GroupModel(int groupId, List<int> users)
         {
             GroupId = groupId;
-            Users = users;
+            UserIds = users;
         }
 
-        public bool AddUserToGroup(UserModel userToAdd)
+        public bool AddUserToGroup(int userToAdd)
         {
-            if (Users.Count() > (MaxGroupSize - 1))
+            if (UserIds.Count() > (MaxGroupSize - 1))
             {
                 return false;
             }
-            foreach (var user in Users)
+            foreach (var user in UserIds)
             {
-                if (user.UserId == userToAdd.UserId)
+                if (user == userToAdd)
                 {
                     return false;
                 }
             }
-            Users.Add(userToAdd);
+            UserIds.Add(userToAdd);
             return true;
         }
 
-        public void RemoveUser(UserModel userToRemove)
+        public void RemoveUser(int userToRemove)
         {
-            Users.Remove(userToRemove);
+            UserIds.Remove(userToRemove);
         }
     }
 }

@@ -5,59 +5,52 @@ namespace logic_layer
     {
         private UserRepo UserRepo = new();
         private AvailabilityRepo AvailabilityRepo = new();
-        public List<UserModel> UserModeList { get; private set; } = [];
-        public UserModel UserModel { get; private set; }
-        public List<AvailabilityModel> AvailabilityModelList { get; private set; } = [];
 
-        public void GetUserById(int userId)
+        public UserModel? GetUserById(int userId)
         {
-            UserRepo.GetUserById(userId);
-            UserModeList.Add(new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions));
-            UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
+            UserDTO? userDTO  = UserRepo.GetUserById(userId);
+            if (userDTO == null)
+            {
+                return null;
+            }
+            return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
         }
 
-        public bool GetUserByName(string username)
+        public UserModel? GetUserByName(string username)
         {
-            if (!UserRepo.GetUserByName(username))
+            UserDTO? userDTO = UserRepo.GetUserByName(username);
+            if (userDTO == null)
             {
-                return false;
+                return null;
             }
-            UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
-            return true;
+            return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
         }
 
-        public void GetAllUsers()
+        public List<UserModel> GetAllUsers()
         {
-            UserRepo.GetAllUsers();
-            foreach (UserDTO userDTO in UserRepo.UserDTOList)
+            List<UserDTO> userDTOList = UserRepo.GetAllUsers();
+            List<UserModel> userModelList = [];
+            foreach (UserDTO userDTO in userDTOList)
             {
-                UserModeList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
+                userModelList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
             }
+            return userModelList;
         }
 
-        public string? AddFavoredFaction(List<string> factionsToAdd)
-        {
-            string factionsBefore = UserModel.FavoredFactions;
-            string? duplicates = UserModel.AddFavoredFaction(factionsToAdd);
-            if (factionsBefore != UserModel.FavoredFactions)
-            {
-                UserRepo.UpdateUserData();
-            }
-            return duplicates;
-        }
+        //public string? AddFavoredFaction(List<string> factionsToAdd, UserModel userModel)
+        //{
+        //    string factionsBefore = userModel.FavoredFactions;
+        //    string? duplicates = userModel.AddFavoredFaction(factionsToAdd);
+        //    if (factionsBefore != userModel.FavoredFactions)
+        //    {
+        //        UserRepo.UpdateUserData();
+        //    }
+        //    return duplicates;
+        //}
 
-        public void RemoveDayAvailable(int id)
+        public void RemoveDayAvailable(int availableId)
         {
-            if (UserModel.RemoveDayAvailable(id))
-            {
-                foreach (AvailabilityModel availabilityModel in AvailabilityModelList)
-                {
-                    if (availabilityModel.Id == id)
-                    {
-                        AvailabilityRepo.RemoveAvailability(availabilityModel.Id);
-                    }
-                }
-            }
+            AvailabilityRepo.RemoveAvailability(availableId);
         }
 
         //public void UpdateAvailability(int id)
