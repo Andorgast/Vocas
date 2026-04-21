@@ -1,0 +1,27 @@
+﻿@model UserListViewModel
+@{
+}
+<div class="w-screen flex flex-wrap">
+    @foreach(var user in Model.Users)
+    {
+        <div class="flex m-[10px] p-[20px] rounded-lg bg-slate-300 h-min">
+            <div class="flex-none">
+                <p class="flex-none"><span class="font-bold">Name: </span>@user.Username</p>
+                <p class="flex-none"><span class="font-bold">K/D: </span>@user.KD</p>
+                <p class="flex-none"><span class="font-bold">Teamkills: </span>@user.TeamKills</p>
+                <p class="flex-none font-bold">Favored factions:</p>
+                <p class="ml-[5px] flex-none">@user.FavoredFactions</p>
+                <p class="flex-none font-bold">Availability:</p>
+                @foreach (var availableRange in user.Available)
+                {
+                    <p class="ml-[5px] flex-none">@availableRange.Day - @availableRange.StartTime / @availableRange.EndTime </p>
+                }
+            </div>
+            <div class="ml-[5px] flex-none">
+                <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-controller="Home" asp-action="UserList" asp-route-id="@user.UserId">user info</a></p>
+                <p class="flex-none align-middle m-[5px] p-[5px] rounded-lg bg-slate-100"><a asp-controller="Home" asp-action="UserList" asp-route-groupCreate="@user.UserId">create group with user</a></p>
+                <p class="flex-none align-middle m-[5px] mb-[0px] p-[5px] rounded-lg bg-slate-100"><a asp-controller="Home" asp-action="UserList" asp-route-id="@user.UserId">add user to group</a></p>
+            </div>
+        </div>
+    }
+</div>
