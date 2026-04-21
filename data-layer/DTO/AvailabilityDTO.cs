@@ -1,11 +1,11 @@
 ﻿namespace data_layer
 {
-    public class AvailabilityDTO  //record //geen con
+    public record AvailabilityDTO  //record //geen con
     {
-        public int Id { get; private set; }
-        public string Day { get; private set; }
-        public TimeSpan StartTime { get; private set; }
-        public TimeSpan EndTime { get; private set; }
+        public int Id { get; init; }
+        public string Day { get; init; }
+        public TimeSpan StartTime { get; init; }
+        public TimeSpan EndTime { get; init; }
 
         public AvailabilityDTO(int id, string day, TimeSpan startTime, TimeSpan endTime)
         {

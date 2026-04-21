@@ -29,6 +29,25 @@ namespace data_layer
             return AllUserGroups;
         }
 
+        public bool CheckIfUserIsInGroup(int groupId, int requestingUser)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT * FROM user_to_group WHERE user_id=@requestingUser AND group_id=@groupId", conn
+            );
+            cmd.Parameters.AddWithValue("@requestingUser", requestingUser);
+            cmd.Parameters.AddWithValue("@groupId", groupId);
+            using var reader = cmd.ExecuteReader();
+            int? TestValue = reader.GetInt32(0);
+            conn.Close();
+            if (TestValue == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public GroupDTO GetGroupById(int groupId)
         {
             var conn = new MySqlConnection(connectionString);

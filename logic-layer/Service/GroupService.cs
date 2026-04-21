@@ -1,5 +1,4 @@
 ﻿using data_layer;
-
 namespace logic_layer
 {
     public class GroupService
@@ -27,8 +26,12 @@ namespace logic_layer
         //    return false;
         //}
 
-        public GroupModel GetGroupById(int id)
+        public GroupModel? GetGroupById(int id, int requestingUser)
         {
+            if (GroupRepo.CheckIfUserIsInGroup(id, requestingUser))
+            {
+                return null;
+            }
             GroupDTO groupDTO = GroupRepo.GetGroupById(id);
             return new(groupDTO.GroupId, groupDTO.Users);
         }
@@ -37,7 +40,6 @@ namespace logic_layer
         {
             List<GroupDTO> groupDTOList = GroupRepo.GetAllGroupsByUser(userId);
             List<GroupModel> groupModelList = [];
-            List<UserModel> users = [];
             foreach (GroupDTO groupDTO in groupDTOList)
             {
                 groupModelList.Add(new(groupDTO.GroupId, groupDTO.Users));

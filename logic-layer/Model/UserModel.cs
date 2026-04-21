@@ -2,7 +2,7 @@
 {
     public class UserModel
     {
-        public string Username { get; set; } = "";
+        public string Username { get; private set; } = "";
         //private string Password = "";
         public List<AvailabilityModel> Availability { get; private set; } = [];
         public int Kills { get; private set; }
@@ -24,74 +24,34 @@
             //get availability from db
         }
 
-        public string? AddFavoredFaction(List<string> factionsToAdd)
-        {
-            string? duplicates = null;
-            foreach (string faction in factionsToAdd)
-            {
-                if (FavoredFactions.Contains(faction) || FavoredFactions == "all")
-                {
-                    duplicates += faction;
-                }
-                else if (FavoredFactions.Contains("&"))
-                {
-                    FavoredFactions = "all";
-                }
-                else
-                {
-                    //bots are always behind the & sign, squids always in front, bugs adapt based on the other faction
-                    if (FavoredFactions == "bots" || faction == "squids")
-                    {
-                        FavoredFactions = faction + " & " + FavoredFactions;
-                    }
-                    else if (FavoredFactions == "squids" || faction == "bots")
-                    {
-                        FavoredFactions = FavoredFactions + " & " + faction;
-                    }
-                }
-            }
-            return duplicates;
-        }
-
-        public bool DayAvailableChange(AvailabilityModel newAvailability)
-        {
-            foreach (var moment in Availability)
-            {
-                if (moment.Day == newAvailability.Day)
-                {
-                    moment.StartTime = newAvailability.StartTime;
-                    moment.EndTime = newAvailability.EndTime;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public void AddNewDayAvailable(string dayToAdd, TimeSpan startTime, TimeSpan endTime, int id)
-        {
-            Availability.Add(new AvailabilityModel(id, dayToAdd, startTime, endTime));
-        }
-
-        public bool RemoveDayAvailable(int id)
-        {
-            AvailabilityModel? dayUpdater = null;
-            foreach (var dayAvailable in Availability)
-            {
-                if (dayAvailable.Id == id)
-                {
-                    dayUpdater = dayAvailable;
-                }
-            }
-            if (dayUpdater != null)
-            {
-                Availability.Remove(dayUpdater);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //public string? AddFavoredFaction(List<string> factionsToAdd)
+        //{
+        //    string? duplicates = null;
+        //    foreach (string faction in factionsToAdd)
+        //    {
+        //        if (FavoredFactions.Contains(faction) || FavoredFactions == "all")
+        //        {
+        //            duplicates += faction;
+        //        }
+        //        else if (FavoredFactions.Contains("&"))
+        //        {
+        //            FavoredFactions = "all";
+        //        }
+        //        else
+        //        {
+        //            //bots are always behind the & sign, squids always in front, bugs adapt based on the other faction
+        //            if (FavoredFactions == "bots" || faction == "squids")
+        //            {
+        //                FavoredFactions = faction + " & " + FavoredFactions;
+        //            }
+        //            else if (FavoredFactions == "squids" || faction == "bots")
+        //            {
+        //                FavoredFactions = FavoredFactions + " & " + faction;
+        //            }
+        //        }
+        //    }
+        //    return duplicates;
+        //}
 
         public decimal GetKD()
         {

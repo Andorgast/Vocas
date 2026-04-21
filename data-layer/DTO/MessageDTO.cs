@@ -1,12 +1,12 @@
 ﻿namespace data_layer
 {
-    public class MessageDTO
+    public record MessageDTO
     {
-        public int MessageId { get; set; }
-        public int UserId { get; set; }
-        public int GroupId { get; set; }
-        public string BodyText { get; set; }
-        public DateTime Time { get; set; }
+        public int MessageId { get; init; }
+        public int UserId { get; init; }
+        public int GroupId { get; init; }
+        public string BodyText { get; init; }
+        public DateTime Time { get; init; }
 
         public MessageDTO(int messageId, string bodyText, int userId, int groupId)
         {

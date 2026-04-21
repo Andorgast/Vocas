@@ -30,27 +30,6 @@ namespace presentation_layer.Controllers
             }
         }
 
-        public IActionResult GlobalGroupPage()
-        {
-            GroupService groupService = new();
-            groupService.GetAllGroupsByUser(CurrentUser);
-            List<GroupViewModel> groupList = [];
-            foreach (GroupModel group in groupService.GroupModelList)
-            {
-                List<UserViewModel> userList = [];
-                foreach (UserModel user in group.Users)
-                {
-                    userList.Add(new(user.UserId, user.Username, user.GetKD(), user.TeamKills, user.Playtime, user.FavoredFactions));
-                }
-                groupList.Add(new(group.GroupId, userList));
-            }
-            if (groupList.Count <= 0)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            return View(new GroupPageViewModel(CurrentUser, groupList));
-        }
-
         public IActionResult GroupPage(int id, string? newUser, int? votedUser, int? votingUser, int? editing, string? editedMessage, string? newMessage)
         {
             GroupService groupService = new();

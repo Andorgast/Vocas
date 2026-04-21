@@ -23,6 +23,22 @@ namespace data_layer
             return AllMessagesFromGroup;
         }
 
+        public MessageDTO GetMessageById(int messageId)
+        {
+            MessageDTO messageDTO;
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT * FROM messages WHERE id=@messageId", conn
+            );
+            cmd.Parameters.AddWithValue("@messageId", messageId);
+            using var reader = cmd.ExecuteReader();
+            reader.Read();
+            messageDTO  = new MessageDTO(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3)));
+            conn.Close();
+            return messageDTO;
+        }
+
         public MessageDTO SendMessage(MessageDTO messageDTO)
         {
             var conn = new MySqlConnection(connectionString);

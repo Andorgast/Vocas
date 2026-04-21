@@ -46,12 +46,31 @@ namespace logic_layer
         //        UserRepo.UpdateUserData();
         //    }
         //    return duplicates;
+        ////}
+
+        //public bool DayAvailableChange(AvailabilityModel newAvailability)
+        //{
+        //    foreach (var moment in Availability)
+        //    {
+        //        if (moment.Day == newAvailability.Day)
+        //        {
+        //            moment.StartTime = newAvailability.StartTime;
+        //            moment.EndTime = newAvailability.EndTime;
+        //            return true;
+        //        }
+        //    }
+        //    return false;
         //}
 
-        public void RemoveDayAvailable(int availableId)
-        {
-            AvailabilityRepo.RemoveAvailability(availableId);
-        }
+        //public void AddNewDayAvailable(string dayToAdd, TimeSpan startTime, TimeSpan endTime, int id)
+        //{
+        //    Availability.Add(new AvailabilityModel(id, dayToAdd, startTime, endTime));
+        //}
+
+        //public void RemoveDayAvailable(int availableId)
+        //{
+        //    AvailabilityRepo.RemoveAvailability(availableId);
+        //}
 
         //public void UpdateAvailability(int id)
         //{
