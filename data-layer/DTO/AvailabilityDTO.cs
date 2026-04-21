@@ -1,6 +1,6 @@
 ﻿namespace data_layer
 {
-    public class AvailabilityDTO
+    public class AvailabilityDTO  //record //geen con
     {
         public int Id { get; private set; }
         public string Day { get; private set; }
