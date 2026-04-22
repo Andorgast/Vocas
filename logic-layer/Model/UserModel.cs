@@ -2,26 +2,43 @@
 {
     public class UserModel
     {
-        public string Username { get; private set; } = "";
-        //private string Password = "";
+        public int? UserId { get; private set; }
+        public string Username { get; private set; }
+        private string Password;
         public List<AvailabilityModel> Availability { get; private set; } = [];
-        public int Kills { get; private set; }
-        public int Deaths { get; private set; }
-        public int TeamKills { get; private set; }
-        public TimeSpan Playtime { get; private set; }
-        public string FavoredFactions { get; private set; }
-        public int UserId { get; private set; }
+        public int? Kills { get; private set; }
+        public int? Deaths { get; private set; }
+        public int? TeamKills { get; private set; }
+        public TimeSpan? Playtime { get; private set; }
+        public string? FavoredFactions { get; private set; }
 
-        public UserModel(int userId, string username, int kills, int deaths, int teamkills, TimeSpan playtime, string factions)
+        public UserModel(int userId, string username, string password, List<AvailabilityModel> availability, int? kills, int? deaths, int? teamkills, TimeSpan? playtime, string? factions)
         {
             UserId = userId;
             Username = username;
+            Password = password;
             Kills = kills;
+            Availability = availability;
             Deaths = deaths;
             TeamKills = teamkills;
             Playtime = playtime;
             FavoredFactions = factions;
-            //get availability from db
+        }
+
+        public UserModel(string username, string password)
+        {
+            Username = username;
+            Password = password;
+        }
+
+        public string GetPassword()
+        {
+            return Password;
+        }
+
+        public void SetId(int id)
+        {
+            UserId = id;
         }
 
         //public string? AddFavoredFaction(List<string> factionsToAdd)
@@ -53,16 +70,19 @@
         //    return duplicates;
         //}
 
-        public decimal GetKD()
+        public decimal? GetKD()
         {
-            decimal KD;
-            if (Deaths > 0)
+            decimal? KD = null;
+            if (Kills != null && Deaths != null)
             {
-                KD = Math.Round(((decimal)Kills / (decimal)Deaths), 1);
-            }
-            else
-            {
-                KD = (decimal)Kills;
+                if (Deaths > 0)
+                {
+                    KD = Math.Round(((decimal)Kills / (decimal)Deaths), 1);
+                }
+                else
+                {
+                    KD = (decimal)Kills;
+                }
             }
             return KD;
         }

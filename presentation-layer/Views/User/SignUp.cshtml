@@ -1,0 +1,25 @@
+﻿@model SignUpViewModel
+<div class="w-screen">
+    <div class="mx-[500px] my-[50px] p-[20px] rounded-lg bg-slate-300">
+        <form class="flex justify-center flex-col text-center" method="post">
+            <p>Enter the username you want:</p>
+            <input type="text" name="name" autocomplete="off" value="@Model.Username"/>
+            @if (Model.NoNameEntered)
+            {
+                <p class="text-red-500 font-bold">You need to choose a username before proceeding</p>
+            }
+            else if (Model.UsernameAlreadyTaken)
+            {
+                <p class="text-red-500 font-bold">someone else sadly already took that name :c</p>
+            }
+            <p>Choose a password:</p>
+            <input type="password" name="password" autocomplete="off" value="@Model.Password"/>
+            <p></p>
+            @if (Model.PasswordWrong)
+            {
+                <p class="text-red-500 font-bold">The password should be at least 8 characters long, contain a capital letter and any special character</p>
+            }
+            <button>Create account</button>
+        </form>
+    </div>
+</div>

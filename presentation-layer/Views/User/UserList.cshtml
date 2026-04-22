@@ -12,7 +12,7 @@
                 <p class="flex-none font-bold">Favored factions:</p>
                 <p class="ml-[5px] flex-none">@user.FavoredFactions</p>
                 <p class="flex-none font-bold">Availability:</p>
-                @foreach (var availableRange in user.Available)
+                @foreach (var availableRange in user.Availability)
                 {
                     <p class="ml-[5px] flex-none">@availableRange.Day - @availableRange.StartTime / @availableRange.EndTime </p>
                 }

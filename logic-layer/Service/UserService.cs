@@ -6,6 +6,24 @@ namespace logic_layer
         private UserRepo UserRepo = new();
         private AvailabilityRepo AvailabilityRepo = new();
 
+        public static bool CheckPasswordByCriteria(string password)
+        {
+            if (password.Length < 8)
+            {
+                //password too short
+                return false;
+            }
+            else if (password.ToLower() == password)
+            {
+                //no capital letter
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         public UserModel? GetUserById(int userId)
         {
             UserDTO? userDTO  = UserRepo.GetUserById(userId);
@@ -13,7 +31,24 @@ namespace logic_layer
             {
                 return null;
             }
-            return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
+            List<AvailabilityDTO> availabilityDTOList = AvailabilityRepo.GetAllAvailabilityByUser(userId);
+            List<AvailabilityModel> availabilityModelList = [];
+            foreach (AvailabilityDTO availability in availabilityDTOList)
+            {
+                availabilityModelList.Add(new(availability.Id, availability.Day, availability.StartTime, availability.EndTime));
+            }
+            return new((int)userDTO.UserId, userDTO.Username, userDTO.Password, availabilityModelList, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
+        }
+
+        public UserModel? CreateNewUser(UserModel userInfo)
+        {
+            if (UserRepo.GetUserByName(userInfo.Username) != null)
+            {
+                return null;
+            }
+            //if id is null here it has crashed and burned too hard to recover
+            userInfo.SetId((int)UserRepo.CreateNewUser(new(userInfo.Username, userInfo.GetPassword())).UserId);
+            return userInfo;
         }
 
         public UserModel? GetUserByName(string username)
@@ -23,7 +58,14 @@ namespace logic_layer
             {
                 return null;
             }
-            return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
+            //userId is not null here, database doesnt allow it
+            List<AvailabilityDTO> availabilityDTOList = AvailabilityRepo.GetAllAvailabilityByUser((int)userDTO.UserId);
+            List<AvailabilityModel> availabilityModelList = [];
+            foreach (AvailabilityDTO availability in availabilityDTOList)
+            {
+                availabilityModelList.Add(new(availability.Id, availability.Day, availability.StartTime, availability.EndTime));
+            }
+            return new((int)userDTO.UserId, userDTO.Username, userDTO.Password, availabilityModelList, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
         }
 
         public List<UserModel> GetAllUsers(int userToExclude)
@@ -32,7 +74,14 @@ namespace logic_layer
             List<UserModel> userModelList = [];
             foreach (UserDTO userDTO in userDTOList)
             {
-                userModelList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
+                //UserId is again not null here, never, only if the database fails to check if a user needs an id is this even possible and even then it would crash and burn when trying to get that id
+                List<AvailabilityDTO> availabilityDTOList = AvailabilityRepo.GetAllAvailabilityByUser((int)userDTO.UserId);
+                List<AvailabilityModel> availabilityModelList = [];
+                foreach (AvailabilityDTO availability in availabilityDTOList)
+                {
+                    availabilityModelList.Add(new(availability.Id, availability.Day, availability.StartTime, availability.EndTime));
+                }
+                userModelList.Add(new((int)userDTO.UserId, userDTO.Username, userDTO.Password, availabilityModelList, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
             }
             return userModelList;
         }
