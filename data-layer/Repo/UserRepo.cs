@@ -5,6 +5,19 @@ namespace data_layer
     {
         private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
 
+        public bool CheckIfUserExists(int userId)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT id FROM users WHERE id = @userId", conn
+            );
+            cmd.Parameters.AddWithValue("@userId", userId);
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            return reader.IsDBNull(0);
+        }
+
         public UserDTO? GetUserById(int userId)
         {
             UserDTO? userToReturn = null;
@@ -43,14 +56,15 @@ namespace data_layer
             return userToReturn;
         }
 
-        public List<UserDTO> GetAllUsers()
+        public List<UserDTO> GetAllUsers(int userToExclude)
         {
             List<UserDTO> AllUsers = [];
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
-                @"SELECT * FROM users", conn
+                @"SELECT * FROM users WHERE NOT id=@userToExclude", conn
             );
+            cmd.Parameters.AddWithValue("@userToExclude", userToExclude);
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

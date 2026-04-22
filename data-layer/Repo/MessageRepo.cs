@@ -34,7 +34,7 @@ namespace data_layer
             cmd.Parameters.AddWithValue("@messageId", messageId);
             using var reader = cmd.ExecuteReader();
             reader.Read();
-            messageDTO  = new MessageDTO(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3)));
+            messageDTO  = new MessageDTO(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3));
             conn.Close();
             return messageDTO;
         }
@@ -50,6 +50,7 @@ namespace data_layer
             cmd.Parameters.AddWithValue("@userId", messageDTO.UserId);
             cmd.Parameters.AddWithValue("@groupId", messageDTO.GroupId);
             using var reader = cmd.ExecuteReader();
+            reader.Read();
             messageDTO.MessageId = reader.GetInt32(0);
             conn.Close();
             return messageDTO;

@@ -2,7 +2,7 @@
 {
     public record MessageDTO
     {
-        public int MessageId { get; init; }
+        public int MessageId { get; set; }
         public int UserId { get; init; }
         public int GroupId { get; init; }
         public string BodyText { get; init; }

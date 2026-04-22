@@ -39,16 +39,17 @@ namespace data_layer
             cmd.Parameters.AddWithValue("@requestingUser", requestingUser);
             cmd.Parameters.AddWithValue("@groupId", groupId);
             using var reader = cmd.ExecuteReader();
-            int? TestValue = reader.GetInt32(0);
+            reader.Read();
+            bool TestValue = reader.IsDBNull(0);
             conn.Close();
-            if (TestValue == null)
+            if (TestValue)
             {
                 return false;
             }
             return true;
         }
 
-        public GroupDTO GetGroupById(int groupId)
+        public GroupDTO? GetGroupById(int groupId)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -124,6 +125,19 @@ namespace data_layer
             cmd.Parameters.AddWithValue("@groupId", groupId);
             cmd.ExecuteNonQuery();
             conn.Close();
+        }
+
+        public bool CheckIfGroupExists(int groupId)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT id FROM game_groups WHERE id = @groupId", conn
+            );
+            cmd.Parameters.AddWithValue("@groupId", groupId);
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            return reader.IsDBNull(0);
         }
 
         public GroupDTO AddGroupToDb(GroupDTO groupDTO)

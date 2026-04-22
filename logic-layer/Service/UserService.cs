@@ -26,9 +26,9 @@ namespace logic_layer
             return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
         }
 
-        public List<UserModel> GetAllUsers()
+        public List<UserModel> GetAllUsers(int userToExclude)
         {
-            List<UserDTO> userDTOList = UserRepo.GetAllUsers();
+            List<UserDTO> userDTOList = UserRepo.GetAllUsers(userToExclude);
             List<UserModel> userModelList = [];
             foreach (UserDTO userDTO in userDTOList)
             {

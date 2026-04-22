@@ -28,7 +28,7 @@ namespace logic_layer
 
         public GroupModel? GetGroupById(int id, int requestingUser)
         {
-            if (GroupRepo.CheckIfUserIsInGroup(id, requestingUser))
+            if (!GroupRepo.CheckIfUserIsInGroup(id, requestingUser))
             {
                 return null;
             }
@@ -100,6 +100,12 @@ namespace logic_layer
             GroupRepo.AddVoteForRenoval(votingUser, votedUser, group.GroupId);
 
             return UserRemoving.voted_succes;
+        }
+
+        public void RemoveUserFromGroup(int userToRemove, int groupId)
+        {
+            //THIS FUNCTION IS ONLY TO BE USED TO FORCIBLY REMOVE A USER, VOTE FOR REMOVAL ALREADY REMOVES A USER IF VOTES ARE ENOUGH
+            GroupRepo.RemoveUserFromGroup(userToRemove, groupId);
         }
 
         public GroupModel CreateNewGroup(List<int> users)

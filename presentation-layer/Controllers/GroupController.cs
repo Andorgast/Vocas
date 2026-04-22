@@ -1,7 +1,6 @@
 ﻿using logic_layer;
 using Microsoft.AspNetCore.Mvc;
 using presentation_layer.Models;
-using System.Diagnostics;
 
 namespace presentation_layer.Controllers
 {
@@ -21,63 +20,88 @@ namespace presentation_layer.Controllers
                 List<UserViewModel> userList = [];
                 foreach (int userId in group.UserIds)
                 {
-                    //in the current case userModel can never return null
-                    UserModel userModel = UserService.GetUserById(userId);
-                    userList.Add(new(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
+                    UserModel? userModel = UserService.GetUserById(userId);
+                    if (userModel == null)
+                    {
+                        //there somehow has been a user added into the group that does not exist, remove the user and continue
+                        GroupService.RemoveUserFromGroup(userId, group.GroupId);
+                    }
+                    else
+                    {
+                        userList.Add(new(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
+                    }
                 }
                 groupList.Add(new(group.GroupId, userList));
             }
             return View(new GroupIndexViewModel(CurrentUser, groupList));
         }
 
-        public IActionResult GroupPage(int id, string? newUser, int? votedUser, int? votingUser, int? editing, string? editedMessage, string? newMessage)
+        public IActionResult GroupPage(int id, string? newUser, int? votedUser, int? editing, string? editedMessage, string? newMessage)
         {
             GroupModel? groupModel = GroupService.GetGroupById(id, CurrentUser);
             if (groupModel == null)
             {
                 return RedirectToAction("Index", "Group");
             }
+
             List<UserViewModel> userList = [];
-            foreach(int userId in groupModel.UserIds)
+            foreach (int userId in groupModel.UserIds)
             {
-                //userModel is never null here
-                UserModel userModel = UserService.GetUserById(userId);
-                userList.Add(new(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
+                UserModel? userModel = UserService.GetUserById(userId);
+                if (userModel == null)
+                {
+                    //there somehow has been a user added into the group that does not exist, remove the user and continue
+                    GroupService.RemoveUserFromGroup(userId, groupModel.GroupId);
+                }
+                else
+                {
+                    userList.Add(new(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
+                }
             }
             GroupViewModel group = new(groupModel.GroupId, userList);
 
-            MessageService messageService = new();
-            messageService.GetAllMessagesByGroup(id);
+            List<MessageModel> messageModelList = MessageService.GetAllMessagesByGroup(id);
             List<MessageViewModel> messageList = [];
-            foreach (MessageModel message in messageService.MessageModelList)
+            foreach (MessageModel message in messageModelList)
             {
-                var UserViewModel = new UserViewModel(message.User.UserId, message.User.Username, message.User.GetKD(), message.User.TeamKills, message.User.Playtime, message.User.FavoredFactions);
-                messageList.Add(new(message.MessageId, message.BodyText, UserViewModel, message.GroupId));
+                UserModel? userModel = UserService.GetUserById(message.UserId);
+                if (userModel == null)
+                {
+                    //there somehow has been sent a message by a user that doesnt exist, remove the erroredUsers message and continue
+                    MessageService.DeleteMessage(message.UserId, message.MessageId);
+                }
+                else
+                {
+                    var UserViewModel = new UserViewModel(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions);
+                    messageList.Add(new(message.MessageId, message.BodyText, UserViewModel, message.GroupId));
+                }
+            }
+
+            if (newMessage != null)
+            {
+                MessageService.SendMessage(new(newMessage, CurrentUser, group.GroupId));
+                return RedirectToAction("GroupPage", "Group");
+            }
+
+            if (newUser != null)
+            {
+                GroupService.AddUserToGroup(newUser, groupModel);
+                return RedirectToAction("GroupPage", "Group");
+            }
+
+            if (votedUser != null)
+            {
+                GroupService.VoteForRemoval(CurrentUser, (int)votedUser, groupModel);
+                return RedirectToAction("GroupPage", "Group");
             }
 
             if (editing != null && editedMessage != null)
             {
-                messageService.EditMessage(new((int)editing, editedMessage, CurrentUser, group.GroupId));
-                return RedirectToAction("GroupPage", "Home");
-            }
-            else if (newMessage != null)
-            {
-                messageService.SendMessage(new(newMessage, CurrentUser, group.GroupId));
-                return RedirectToAction("GroupPage", "Home");
+                MessageService.EditMessage(new((int)editing, editedMessage, CurrentUser, group.GroupId));
+                return RedirectToAction("GroupPage", "Group");
             }
 
-            if (groupService.AddUserToGroup(newUser))
-            {
-                return RedirectToAction("GroupPage", "Home");
-            }
-
-            if (groupService.VoteForRemoval(votingUser, votedUser) != GroupService.UserRemoving.null_value)
-            {
-                return RedirectToAction("GroupPage", "Home");
-            }
-            messageService.EditMessage(CurrentUser, editedMessage, editing);
-
-            return View(new GroupPageViewModel(CurrentUser, groupInfo, groupService.GroupModel.Users.Count(), messageList, editing));
+            return View(new GroupPageViewModel(CurrentUser, group, group.Users.Count(), messageList, editing));
         }
     }
 }
