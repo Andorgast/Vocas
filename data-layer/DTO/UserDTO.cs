@@ -1,15 +1,15 @@
 ﻿namespace data_layer
 {
-    public class UserDTO
+    public record UserDTO
     {
-        public string Username { get; private set; }
-        public string Password { get; private set; }
-        public int Kills { get; private set; }
-        public int Deaths { get; private set; }
-        public int TeamKills { get; private set; }
-        public TimeSpan Playtime { get; private set; }
-        public string FavoredFactions { get; private set; }
-        public int UserId { get; private set; }
+        public string Username { get; init; }
+        public string Password { get; init; }
+        public int Kills { get; init; }
+        public int Deaths { get; init; }
+        public int TeamKills { get; init; }
+        public TimeSpan Playtime { get; init; }
+        public string FavoredFactions { get; init; }
+        public int UserId { get; init; }
 
         public UserDTO(int userId, string username, string password, int kills, int deaths, int teamkills, string playtime, string factions)
         {

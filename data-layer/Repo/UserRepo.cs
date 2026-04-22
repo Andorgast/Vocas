@@ -4,11 +4,23 @@ namespace data_layer
     public class UserRepo
     {
         private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
-        public UserDTO UserDTO { get; private set; }
-        public List<UserDTO> UserDTOList { get; private set; } = [];
 
-        public bool GetUserById(int userId)
+        public bool CheckIfUserExists(int userId)
         {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"SELECT id FROM users WHERE id = @userId", conn
+            );
+            cmd.Parameters.AddWithValue("@userId", userId);
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            return reader.IsDBNull(0);
+        }
+
+        public UserDTO? GetUserById(int userId)
+        {
+            UserDTO? userToReturn = null;
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
@@ -19,14 +31,15 @@ namespace data_layer
             if (!reader.Read())
             {
                 conn.Close();
-                return false;
+                return userToReturn;
             }
-            UserDTO = new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
-            return true;
+            userToReturn = new(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
+            return userToReturn;
         }
 
-        public bool GetUserByName(string username)
+        public UserDTO? GetUserByName(string username)
         {
+            UserDTO? userToReturn = null;
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
@@ -37,35 +50,27 @@ namespace data_layer
             if (!reader.Read())
             {
                 conn.Close();
-                return false;
+                return userToReturn;
             }
-            UserDTO = new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
-            return true;
+            userToReturn = new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
+            return userToReturn;
         }
 
-        public bool GetAllUsers()
+        public List<UserDTO> GetAllUsers(int userToExclude)
         {
+            List<UserDTO> AllUsers = [];
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
-                @"SELECT * FROM users", conn
+                @"SELECT * FROM users WHERE NOT id=@userToExclude", conn
             );
+            cmd.Parameters.AddWithValue("@userToExclude", userToExclude);
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                UserDTOList.Add(new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7)));
+                AllUsers.Add(new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7)));
             }
-            return true;
-        }
-
-        public bool UpdateUserData()
-        {
-            return true;
-        }
-
-        public bool InsertUser()
-        {
-            return true;
+            return AllUsers;
         }
     }
 }

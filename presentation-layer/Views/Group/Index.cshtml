@@ -1,4 +1,4 @@
-﻿@model GroupPageViewModel
+﻿@model GroupIndexViewModel
 @{
 }
 <div class="w-screen">
@@ -55,7 +55,7 @@
                     }
                 </div>
                 <div class="m-[5px]">
-                    <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-controller="Home" asp-action="GroupPage" asp-route-id="@group.GroupId"> Go to group page</a></p>
+                    <p class="flex-none align-middle p-[5px] m-[5px] mt-[0px] rounded-lg bg-slate-100"><a asp-controller="Group" asp-action="GroupPage" asp-route-id="@group.GroupId"> Go to group page</a></p>
                 </div>
             </div>
         }
