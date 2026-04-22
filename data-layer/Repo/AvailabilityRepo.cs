@@ -4,10 +4,10 @@ namespace data_layer
     public class AvailabilityRepo
     {
         private string connectionString = "Server=localhost;Database=s2proj;User Id=root;Password=1234;";
-        public List<AvailabilityDTO> AvailabilityDTOList { get; private set; } = [];
 
         public List<AvailabilityDTO> GetAllAvailabilityByUser(int userId)
         {
+            List<AvailabilityDTO> allAvailability = [];
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
@@ -17,23 +17,23 @@ namespace data_layer
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                AvailabilityDTOList.Add(new AvailabilityDTO(reader.GetInt32(0), reader.GetString(2), TimeSpan.Parse(reader.GetString(3)), TimeSpan.Parse(reader.GetString(4))));
+                allAvailability.Add(new AvailabilityDTO(reader.GetInt32(0), reader.GetString(2), TimeSpan.Parse(reader.GetString(3)), TimeSpan.Parse(reader.GetString(4))));
             }
             conn.Close();
-            return AvailabilityDTOList;
+            return allAvailability;
         }
 
-        public void UpdateAvailability(int id, string weekday, TimeSpan newStartTime, TimeSpan newEndTime)
+        public void UpdateAvailability(AvailabilityDTO updatedAvailability)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
                 @"UPDATE availability SET weekday=@weekday , start_time=@newStartTime , end_time=@newEndTime WHERE id=@id", conn
             );
-            cmd.Parameters.AddWithValue("@id", id);
-            cmd.Parameters.AddWithValue("@weekday", weekday);
-            cmd.Parameters.AddWithValue("@newStartTime", newStartTime);
-            cmd.Parameters.AddWithValue("@newEndTime", newEndTime);
+            cmd.Parameters.AddWithValue("@id", updatedAvailability.Id);
+            cmd.Parameters.AddWithValue("@weekday", updatedAvailability.Day);
+            cmd.Parameters.AddWithValue("@newStartTime", updatedAvailability.StartTime);
+            cmd.Parameters.AddWithValue("@newEndTime", updatedAvailability.EndTime);
             cmd.ExecuteNonQuery();
             conn.Close();
         }

@@ -5,60 +5,72 @@ namespace logic_layer
     {
         private UserRepo UserRepo = new();
         private AvailabilityRepo AvailabilityRepo = new();
-        public List<UserModel> UserModeList { get; private set; } = [];
-        public UserModel UserModel { get; private set; }
-        public List<AvailabilityModel> AvailabilityModelList { get; private set; } = [];
 
-        public void GetUserById(int userId)
+        public UserModel? GetUserById(int userId)
         {
-            UserRepo.GetUserById(userId);
-            UserModeList.Add(new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions));
-            UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
-        }
-
-        public bool GetUserByName(string username)
-        {
-            if (!UserRepo.GetUserByName(username))
+            UserDTO? userDTO  = UserRepo.GetUserById(userId);
+            if (userDTO == null)
             {
-                return false;
+                return null;
             }
-            UserModel = new UserModel(UserRepo.UserDTO.UserId, UserRepo.UserDTO.Username, UserRepo.UserDTO.Kills, UserRepo.UserDTO.Deaths, UserRepo.UserDTO.TeamKills, UserRepo.UserDTO.Playtime, UserRepo.UserDTO.FavoredFactions);
-            return true;
+            return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
         }
 
-        public void GetAllUsers()
+        public UserModel? GetUserByName(string username)
         {
-            UserRepo.GetAllUsers();
-            foreach (UserDTO userDTO in UserRepo.UserDTOList)
+            UserDTO? userDTO = UserRepo.GetUserByName(username);
+            if (userDTO == null)
             {
-                UserModeList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
+                return null;
             }
+            return new(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions);
         }
 
-        public string? AddFavoredFaction(List<string> factionsToAdd)
+        public List<UserModel> GetAllUsers(int userToExclude)
         {
-            string factionsBefore = UserModel.FavoredFactions;
-            string? duplicates = UserModel.AddFavoredFaction(factionsToAdd);
-            if (factionsBefore != UserModel.FavoredFactions)
+            List<UserDTO> userDTOList = UserRepo.GetAllUsers(userToExclude);
+            List<UserModel> userModelList = [];
+            foreach (UserDTO userDTO in userDTOList)
             {
-                UserRepo.UpdateUserData();
+                userModelList.Add(new UserModel(userDTO.UserId, userDTO.Username, userDTO.Kills, userDTO.Deaths, userDTO.TeamKills, userDTO.Playtime, userDTO.FavoredFactions));
             }
-            return duplicates;
+            return userModelList;
         }
 
-        public void RemoveDayAvailable(int id)
-        {
-            if (UserModel.RemoveDayAvailable(id))
-            {
-                foreach (AvailabilityModel availabilityModel in AvailabilityModelList)
-                {
-                    if (availabilityModel.Id == id)
-                    {
-                        AvailabilityRepo.RemoveAvailability(availabilityModel.Id);
-                    }
-                }
-            }
-        }
+        //public string? AddFavoredFaction(List<string> factionsToAdd, UserModel userModel)
+        //{
+        //    string factionsBefore = userModel.FavoredFactions;
+        //    string? duplicates = userModel.AddFavoredFaction(factionsToAdd);
+        //    if (factionsBefore != userModel.FavoredFactions)
+        //    {
+        //        UserRepo.UpdateUserData();
+        //    }
+        //    return duplicates;
+        ////}
+
+        //public bool DayAvailableChange(AvailabilityModel newAvailability)
+        //{
+        //    foreach (var moment in Availability)
+        //    {
+        //        if (moment.Day == newAvailability.Day)
+        //        {
+        //            moment.StartTime = newAvailability.StartTime;
+        //            moment.EndTime = newAvailability.EndTime;
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        //public void AddNewDayAvailable(string dayToAdd, TimeSpan startTime, TimeSpan endTime, int id)
+        //{
+        //    Availability.Add(new AvailabilityModel(id, dayToAdd, startTime, endTime));
+        //}
+
+        //public void RemoveDayAvailable(int availableId)
+        //{
+        //    AvailabilityRepo.RemoveAvailability(availableId);
+        //}
 
         //public void UpdateAvailability(int id)
         //{

@@ -1,12 +1,12 @@
 ﻿namespace data_layer
 {
-    public class MessageDTO
+    public record MessageDTO
     {
-        public int MessageId { get; private set; }
-        public int UserId { get; private set; }
-        public int GroupId { get; private set; }
-        public string BodyText { get; private set; }
-        public DateTime Time { get; private set; }
+        public int MessageId { get; set; }
+        public int UserId { get; init; }
+        public int GroupId { get; init; }
+        public string BodyText { get; init; }
+        public DateTime Time { get; init; }
 
         public MessageDTO(int messageId, string bodyText, int userId, int groupId)
         {
@@ -22,17 +22,6 @@
             BodyText = bodyText;
             UserId = userId;
             GroupId = groupId;
-        }
-
-        public void SetMessageId(int messageId)
-        {
-            //for new messages when they have been sent and the id is known
-            MessageId = messageId;
-        }
-
-        public void EditText(string newText)
-        {
-            BodyText = newText;
         }
     }
 }
