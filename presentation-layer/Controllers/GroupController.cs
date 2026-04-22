@@ -28,7 +28,13 @@ namespace presentation_layer.Controllers
                     }
                     else
                     {
-                        userList.Add(new(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
+                        List<AvailabilityModel> availabilityModelList = userModel.Availability;
+                        List<AvailabilityViewModel> availabilityViewModelList = [];
+                        foreach (AvailabilityModel availability in availabilityModelList)
+                        {
+                            availabilityViewModelList.Add(new(availability.Id, availability.Day, availability.StartTime, availability.EndTime));
+                        }
+                        userList.Add(new((int)userModel.UserId, userModel.Username, availabilityViewModelList, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
                     }
                 }
                 groupList.Add(new(group.GroupId, userList));
@@ -55,7 +61,13 @@ namespace presentation_layer.Controllers
                 }
                 else
                 {
-                    userList.Add(new(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
+                    List<AvailabilityModel> availabilityModelList = userModel.Availability;
+                    List<AvailabilityViewModel> availabilityViewModelList = [];
+                    foreach (AvailabilityModel availability in availabilityModelList)
+                    {
+                        availabilityViewModelList.Add(new(availability.Id, availability.Day, availability.StartTime, availability.EndTime));
+                    }
+                    userList.Add(new((int)userModel.UserId, userModel.Username, availabilityViewModelList, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions));
                 }
             }
             GroupViewModel group = new(groupModel.GroupId, userList);
@@ -72,8 +84,13 @@ namespace presentation_layer.Controllers
                 }
                 else
                 {
-                    var UserViewModel = new UserViewModel(userModel.UserId, userModel.Username, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions);
-                    messageList.Add(new(message.MessageId, message.BodyText, UserViewModel, message.GroupId));
+                    List<AvailabilityModel> availabilityModelList = userModel.Availability;
+                    List<AvailabilityViewModel> availabilityViewModelList = [];
+                    foreach (AvailabilityModel availability in availabilityModelList)
+                    {
+                        availabilityViewModelList.Add(new(availability.Id, availability.Day, availability.StartTime, availability.EndTime));
+                    }
+                    messageList.Add(new(message.MessageId, message.BodyText, new((int)userModel.UserId, userModel.Username, availabilityViewModelList, userModel.GetKD(), userModel.TeamKills, userModel.Playtime, userModel.FavoredFactions), message.GroupId));
                 }
             }
 

@@ -17,7 +17,7 @@ namespace data_layer
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                allAvailability.Add(new AvailabilityDTO(reader.GetInt32(0), reader.GetString(2), TimeSpan.Parse(reader.GetString(3)), TimeSpan.Parse(reader.GetString(4))));
+                allAvailability.Add(new AvailabilityDTO(reader.GetInt32(0), reader.GetString(2), reader.GetTimeSpan(3), reader.GetTimeSpan(4)));
             }
             conn.Close();
             return allAvailability;
