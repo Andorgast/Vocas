@@ -22,7 +22,7 @@
             {
                 <form class="mt-[10px] p-[20px] rounded-lg bg-slate-300 h-min w-min">
                     <p>Enter the username of the user you want to add</p>
-                    <input class="rounded-lg" type="text" name="newUser" /><p></p>
+                    <input class="rounded-lg" type="text" name="newUser" autocomplete="off" /><p></p>
                     <button class="flex-none align-middle p-[5px] m-[5px] ml-[0px] rounded-lg bg-slate-100">add user</button>
                 </form>
             }
@@ -35,7 +35,7 @@
                     <div class="bg-sky-300 m-[20px] p-[10px] rounded-lg ml-[400px]">
                         <p>[you]</p>
                         <form>
-                            <input type="text" autofocus name="editedMessage" value="@message.BodyText" />
+                            <input type="text" autofocus name="editedMessage" value="@message.BodyText" autocomplete="off" />
                             <input type="hidden" name="editing" value="@Model.Editing" />
                             <p></p>
                             <button>confirm changes</button>
@@ -62,7 +62,7 @@
             }
             <div class="p-[20px] rounded-lg bg-slate-300 h-min w-full">
                 <form>
-                    <input name="newMessage" type="text" />
+                    <input name="newMessage" type="text" autocomplete="off" />
                     <button>send message</button>
                 </form>
             </div>

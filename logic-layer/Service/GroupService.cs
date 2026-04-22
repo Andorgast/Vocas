@@ -50,12 +50,12 @@ namespace logic_layer
         public UserModel? AddUserToGroup(string username, GroupModel group)
         {
             UserModel? userModel = UserService.GetUserByName(username);
-            if (userModel == null || !group.AddUserToGroup(userModel.UserId))
+            if (userModel == null || !group.AddUserToGroup((int)userModel.UserId))
             {
                 userModel = null;
                 return userModel;
             }
-            GroupRepo.AddUserToGroup(new GroupDTO(group.GroupId, group.UserIds), userModel.UserId);
+            GroupRepo.AddUserToGroup(new GroupDTO(group.GroupId, group.UserIds), (int)userModel.UserId);
             return userModel;
         }
 

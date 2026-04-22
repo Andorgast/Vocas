@@ -18,9 +18,23 @@ namespace data_layer
             return reader.IsDBNull(0);
         }
 
+        public UserDTO CreateNewUser(UserDTO userInfo)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var cmd = new MySqlCommand(
+                @"INSERT INTO users (username, password) VALUE (@username, @password); SELECT LAST_INSERT_ID();", conn
+            );
+            cmd.Parameters.AddWithValue("@username", userInfo.Username);
+            cmd.Parameters.AddWithValue("@password", userInfo.Password);
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            userInfo.UserId = reader.GetInt32(0);
+            return userInfo;
+        }
+
         public UserDTO? GetUserById(int userId)
         {
-            UserDTO? userToReturn = null;
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
@@ -31,15 +45,41 @@ namespace data_layer
             if (!reader.Read())
             {
                 conn.Close();
-                return userToReturn;
+                return null;
             }
-            userToReturn = new(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
-            return userToReturn;
+            int idTemp = reader.GetInt32(0);
+            string nameTemp = reader.GetString(1);
+            string passwordTemp = reader.GetString(2);
+            int? killsTemp = null;
+            if (!reader.IsDBNull(3))
+            {
+                killsTemp = reader.GetInt32(3);
+            }
+            int? deathsTemp = null;
+            if (!reader.IsDBNull(4))
+            {
+                deathsTemp = reader.GetInt32(4);
+            }
+            int? teamkillsTemp = null;
+            if (!reader.IsDBNull(5))
+            {
+                teamkillsTemp = reader.GetInt32(5);
+            }
+            TimeSpan? playtimeTemp = null;
+            if (!reader.IsDBNull(6))
+            {
+                playtimeTemp = TimeSpan.Parse(reader.GetString(6));
+            }
+            string? factionsTemp = null;
+            if (!reader.IsDBNull(7))
+            {
+                factionsTemp = reader.GetString(7);
+            }
+            return new(idTemp, nameTemp, passwordTemp, killsTemp, deathsTemp, teamkillsTemp, playtimeTemp, factionsTemp);
         }
 
         public UserDTO? GetUserByName(string username)
         {
-            UserDTO? userToReturn = null;
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var cmd = new MySqlCommand(
@@ -50,10 +90,37 @@ namespace data_layer
             if (!reader.Read())
             {
                 conn.Close();
-                return userToReturn;
+                return null;
             }
-            userToReturn = new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7));
-            return userToReturn;
+            int idTemp = reader.GetInt32(0);
+            string nameTemp = reader.GetString(1);
+            string passwordTemp = reader.GetString(2);
+            int? killsTemp = null;
+            if (!reader.IsDBNull(3))
+            {
+                killsTemp = reader.GetInt32(3);
+            }
+            int? deathsTemp = null;
+            if (!reader.IsDBNull(4))
+            {
+                deathsTemp = reader.GetInt32(4);
+            }
+            int? teamkillsTemp = null;
+            if (!reader.IsDBNull(5))
+            {
+                teamkillsTemp = reader.GetInt32(5);
+            }
+            TimeSpan? playtimeTemp = null;
+            if (!reader.IsDBNull(6))
+            {
+                playtimeTemp = TimeSpan.Parse(reader.GetString(6));
+            }
+            string? factionsTemp = null;
+            if (!reader.IsDBNull(7))
+            {
+                factionsTemp = reader.GetString(7);
+            }
+            return new(idTemp, nameTemp, passwordTemp, killsTemp, deathsTemp, teamkillsTemp, playtimeTemp, factionsTemp);
         }
 
         public List<UserDTO> GetAllUsers(int userToExclude)
@@ -68,7 +135,35 @@ namespace data_layer
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                AllUsers.Add(new UserDTO(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5), reader.GetString(6), reader.GetString(7)));
+                int idTemp = reader.GetInt32(0);
+                string nameTemp = reader.GetString(1);
+                string passwordTemp = reader.GetString(2);
+                int? killsTemp = null;
+                if (!reader.IsDBNull(3))
+                {
+                    killsTemp = reader.GetInt32(3);
+                }
+                int? deathsTemp = null;
+                if (!reader.IsDBNull(4))
+                {
+                    deathsTemp = reader.GetInt32(4);
+                }
+                int? teamkillsTemp = null;
+                if (!reader.IsDBNull(5))
+                {
+                    teamkillsTemp = reader.GetInt32(5);
+                }
+                TimeSpan? playtimeTemp = null;
+                if (!reader.IsDBNull(6))
+                {
+                    playtimeTemp = TimeSpan.Parse(reader.GetString(6));
+                }
+                string? factionsTemp = null;
+                if (!reader.IsDBNull(7))
+                {
+                    factionsTemp = reader.GetString(7);
+                }
+                AllUsers.Add(new(idTemp, nameTemp, passwordTemp, killsTemp, deathsTemp, teamkillsTemp, playtimeTemp, factionsTemp));
             }
             return AllUsers;
         }
